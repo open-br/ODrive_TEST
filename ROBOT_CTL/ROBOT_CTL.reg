@@ -1,0 +1,17 @@
+REGEDIT
+; この .REG ファイルは SETUP プログラムで使用される可能性があります。
+;   SETUP プログラムが使用できない場合、以下のエントリは CWinApp::RegisterShellFileTypes
+;   および COleObjectFactory::UpdateRegistryAll の呼び出しで自動的に InitInstance 中に
+;   登録されます。
+
+
+HKEY_CLASSES_ROOT\ROBOT_CTL.Application = ROBOT_CTL Application
+
+
+HKEY_CLASSES_ROOT\ROBOT_CTL.Application\CLSID = {F971C2A3-EE25-4C5F-A5E2-86C3A36DC739}
+
+HKEY_CLASSES_ROOT\CLSID\{F971C2A3-EE25-4C5F-A5E2-86C3A36DC739} = ROBOT_CTL Application
+HKEY_CLASSES_ROOT\CLSID\{F971C2A3-EE25-4C5F-A5E2-86C3A36DC739}\ProgId = ROBOT_CTL.Application
+
+
+HKEY_CLASSES_ROOT\CLSID\{F971C2A3-EE25-4C5F-A5E2-86C3A36DC739}\LocalServer32 = ROBOT_CTL.EXE

@@ -1,0 +1,29 @@
+// ROBOT_CTL.idl : ROBOT_CTL.exe のタイプ ライブラリ ソース
+
+// このファイルは、タイプ ライブラリ (ROBOT_CTL.tlb) を作成するために、
+// MIDL コンパイラによって処理されます。
+
+[ uuid(C6688494-DA34-4465-ACAF-7D188C97BBD1), version(1.0) ]
+library ROBOT_CTL
+{
+	importlib("stdole32.tlb");
+	importlib("stdole2.tlb");
+
+	//  CROBOT_CTLDoc のプライマリ ディスパッチ インターフェイス
+	
+	[ uuid(7247C1E0-D0DC-46E5-9EAC-AB57596BF892) ]
+	dispinterface IROBOT_CTL
+	{
+		properties:
+			
+		methods:
+	};
+
+	//  CROBOT_CTLDoc のクラス情報
+	
+	[ uuid(F971C2A3-EE25-4C5F-A5E2-86C3A36DC739) ]
+	coclass ROBOT_CTL
+	{
+		[default] dispinterface IROBOT_CTL;
+	};
+};
