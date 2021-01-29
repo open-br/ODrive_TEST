@@ -26,7 +26,7 @@
 futaba_rs Futaba_RS;	// サーボ制御用クラス
 ODriveArduino ODrive;
 
-
+float pos_m0 = 0.0f;
 
 char get_port[10];
 int get_baud;
@@ -43,7 +43,7 @@ CString filetime;		// CSVを保存するときのファイル名
 int flag_csv = 0;		// CSVフラグ
 FILE* csv_fp;			// CSVのファイルポインタ
 
-int sv_angle_rw_all;
+int sv_angle_rw_all = 0;
 
 int pointA;
 int pointB;
@@ -363,10 +363,11 @@ BOOL CROBOT_CTLDlg::OnInitDialog()
 		//////////////////スライダーの範囲を設定する
 	}
 
-	sv_angle_sl_ctl_all.SetRange(-1500,1500);
-	sv_angle_rw_all = -1500;
-
-
+	sv_angle_sl_ctl_all.SetRange(-1000,1000);
+	sv_angle_rw_all = 100;
+	UpdateData(FALSE);	// 値→GUI
+	sv_angle_rw_all = 0;
+	UpdateData(FALSE);	// 値→GUI
 
 	// INIファイルから取得
 	GetPrivateProfileString("serial", "COM", "INI ERROR", get_port, sizeof(get_port), SETFILE);
@@ -637,16 +638,25 @@ void thread_motor(void)
 	clock_t now_time = 0,old_time = 0;	// 時間計測用
 
 
-	if (Futaba_RS.init(get_port, get_baud) != true) {		//	COMポート RS232Cの初期化
+	//if (Futaba_RS.init(get_port, get_baud) != true) {		//	COMポート RS232Cの初期化
+	//											//	printf("ポート(%s)がオープン出来ませんでした。\n",OPN_COM);
+	//	while (1);
+	//};
+
+
+	if (ODrive.init(get_port, get_baud) != true) {		//	COMポート RS232Cの初期化
 												//	printf("ポート(%s)がオープン出来ませんでした。\n",OPN_COM);
 		while (1);
 	};
 
 
+
+
+
 	// とりあえず全サーボトルクオフ
-	for (i = 0; i < 100; i++) {
-		Futaba_RS.sv_torque(i, 0);
-	}
+	//for (i = 0; i < 100; i++) {
+	//	Futaba_RS.sv_torque(i, 0);
+	//}
 
 	while (sv_ctl_f) {
 		
@@ -656,38 +666,47 @@ void thread_motor(void)
 		old_time = now_time;					// 過去時間の更新
 
 		// サーボの値を取得
-		RSGetDataALL();		// ノーマルサーボ取得
+		//RSGetDataALL();		// ノーマルサーボ取得
 
 
 		Processing_time1 = clock() - now_time;
 
 		// トルクに関して、違っていたら保存＆反映
-		for (i = 0; i < 100; i++) {
-			if (Data[i].torque != Data[i].old_torque) Futaba_RS.sv_torque(i, Data[i].torque);		// 違ってたら違うモノに変更
-			Data[i].old_torque = Data[i].torque;											// 前回のトルクを保存
-		}
+		//for (i = 0; i < 100; i++) {
+		//	if (Data[i].torque != Data[i].old_torque) Futaba_RS.sv_torque(i, Data[i].torque);		// 違ってたら違うモノに変更
+		//	Data[i].old_torque = Data[i].torque;											// 前回のトルクを保存
+		//}
 
 		Processing_time2 = clock() - Processing_time1 - now_time;
 
-		for (i = 0; i < 100; i++) {
-			if (Data[i].torque == 0) {			// トルクがオフの場合
-			}
-			else {								// トルクがオンの場合
+		//for (i = 0; i < 100; i++) {
+		//	if (Data[i].torque == 0) {			// トルクがオフの場合
+		//	}
+		//	else {								// トルクがオンの場合
 
-				if (sv_reverse_w[i] == TRUE) {	// リバースがオンの時
-					Data[i].g_angle = -(sv_angle_rw_all + sv_diff[i]);
-				}
-				else {							// リバースがオフの時
-					Data[i].g_angle = sv_angle_rw_all + sv_diff[i];
-				}
-			}
+		//		if (sv_reverse_w[i] == TRUE) {	// リバースがオンの時
+		//			Data[i].g_angle = -(sv_angle_rw_all + sv_diff[i]);
+		//		}
+		//		else {							// リバースがオフの時
+		//			Data[i].g_angle = sv_angle_rw_all + sv_diff[i];
+		//		}
+		//	}
 
-		}
+		//}
 
 
+		pos_m0 = (float)sv_angle_rw_all/100.0f;
+		ODrive.SetPosition(0, pos_m0);
 
 		// 全サーボに目標角度と目標速度を送信！
-		Futaba_RS.sv_move_long(Data);
+		//Futaba_RS.sv_move_long(Data);
+
+
+
+
+
+
+
 
 
 
@@ -696,36 +715,38 @@ void thread_motor(void)
 
 
 
-		if (flag_csv) {	// CSVに記録
+		//if (flag_csv) {	// CSVに記録
 
-			// 時間の取得
-			GetSystemTime(&st);
-			// wHourを９時間足して、日本時間にする
-			fprintf_s(csv_fp, "\"%04d/%02d/%02d_%02d:%02d:%02d.%03d\",",
-				st.wYear, st.wMonth, st.wDay,
-				st.wHour + 9, st.wMinute, st.wSecond, st.wMilliseconds);
+		//	// 時間の取得
+		//	GetSystemTime(&st);
+		//	// wHourを９時間足して、日本時間にする
+		//	fprintf_s(csv_fp, "\"%04d/%02d/%02d_%02d:%02d:%02d.%03d\",",
+		//		st.wYear, st.wMonth, st.wDay,
+		//		st.wHour + 9, st.wMinute, st.wSecond, st.wMilliseconds);
 
-			for (i = 1; i < 9; i++) {
-				//トルクオフなら取得値　オンなら指示角 g_angle	
-				fprintf_s(csv_fp, "%d,", Data[i].g_angle); // 目標角度
-				fprintf_s(csv_fp, "%d,", Data[i].angle);   // 実測角度
-				fprintf_s(csv_fp, "%d,", Data[i].speed);   // 実測角速度
-				fprintf_s(csv_fp, "%d,", Data[i].load);    // 実測電流
-				fprintf_s(csv_fp, "%d,", Data[i].temperature); // 実測温度
-				fprintf_s(csv_fp, "0x%04x,", Data[i].error);   // エラー
-			}
+		//	for (i = 1; i < 9; i++) {
+		//		//トルクオフなら取得値　オンなら指示角 g_angle	
+		//		fprintf_s(csv_fp, "%d,", Data[i].g_angle); // 目標角度
+		//		fprintf_s(csv_fp, "%d,", Data[i].angle);   // 実測角度
+		//		fprintf_s(csv_fp, "%d,", Data[i].speed);   // 実測角速度
+		//		fprintf_s(csv_fp, "%d,", Data[i].load);    // 実測電流
+		//		fprintf_s(csv_fp, "%d,", Data[i].temperature); // 実測温度
+		//		fprintf_s(csv_fp, "0x%04x,", Data[i].error);   // エラー
+		//	}
 
-			fprintf_s(csv_fp, "\n");
+		//	fprintf_s(csv_fp, "\n");
 
-		}
+		//}
 
 
 
 
 	}
 
-	Futaba_RS.close();	// シリアルポートクローズ
-	
+	//Futaba_RS.close();	// シリアルポートクローズ
+
+
+	ODrive.close();	// シリアルポートクローズ
 }
 
 
@@ -741,48 +762,50 @@ void CROBOT_CTLDlg::OnTimer(UINT_PTR nIDEvent)
 
 		if (f_testmove_do == 0) UpdateData(TRUE);		// スライダの位置・ボックスの値を変数に代入 (再生中でなければ)
 
-		for (i = 1; i < sv_count + 1; i++) {
-			sv_angle_r[i].Format(_T("%.1f deg"), ((float)Data[i].angle / 10));	//受信した値[角度]を格納
-			sv_time_r[i].Format(_T("%.2f sec"), ((float)Data[i].time / 100));	//受信した値[時間]を格納
-			sv_speed_r[i].Format(_T("%d d/s"), Data[i].speed);					//受信した値[速度]を格納
-			sv_load_r[i].Format(_T("%d mA"), Data[i].load);						//受信した値[負荷]を格納
-			sv_temperature_r[i].Format(_T("%d℃"), Data[i].temperature);		//受信した値[温度]を格納
+		//for (i = 1; i < sv_count + 1; i++) {
+		//	sv_angle_r[i].Format(_T("%.1f deg"), ((float)Data[i].angle / 10));	//受信した値[角度]を格納
+		//	sv_time_r[i].Format(_T("%.2f sec"), ((float)Data[i].time / 100));	//受信した値[時間]を格納
+		//	sv_speed_r[i].Format(_T("%d d/s"), Data[i].speed);					//受信した値[速度]を格納
+		//	sv_load_r[i].Format(_T("%d mA"), Data[i].load);						//受信した値[負荷]を格納
+		//	sv_temperature_r[i].Format(_T("%d℃"), Data[i].temperature);		//受信した値[温度]を格納
 
-			sv_error_r[i].Format(_T("%o"), Data[i].error);						// エラーを格納
-			if (Data[i].error != 0) {
-				sv_angle_r[i].Format(_T("XXXXX"));			// エラーのときは[XXXXX]を表示
-				sv_time_r[i].Format(_T("XXXXX"));			// エラーのときは[XXXXX]を表示
-				sv_speed_r[i].Format(_T("XXXXX"));			// エラーのときは[XXXXX]を表示
-				sv_load_r[i].Format(_T("XXXXX"));			// エラーのときは[XXXXX]を表示
-				sv_temperature_r[i].Format(_T("XXXXX"));	// エラーのときは[XXXXX]を表示
-			}
+		//	sv_error_r[i].Format(_T("%o"), Data[i].error);						// エラーを格納
+		//	if (Data[i].error != 0) {
+		//		sv_angle_r[i].Format(_T("XXXXX"));			// エラーのときは[XXXXX]を表示
+		//		sv_time_r[i].Format(_T("XXXXX"));			// エラーのときは[XXXXX]を表示
+		//		sv_speed_r[i].Format(_T("XXXXX"));			// エラーのときは[XXXXX]を表示
+		//		sv_load_r[i].Format(_T("XXXXX"));			// エラーのときは[XXXXX]を表示
+		//		sv_temperature_r[i].Format(_T("XXXXX"));	// エラーのときは[XXXXX]を表示
+		//	}
 
-			sv_diff_w[i].Format(_T("%d"), sv_diff[i]);							// 差分を格納
+		//	sv_diff_w[i].Format(_T("%d"), sv_diff[i]);							// 差分を格納
 
 
-			Data[i].torque = sv_torque_w[i];									// トルクチェックボックスをトルクの値に反映
+		//	Data[i].torque = sv_torque_w[i];									// トルクチェックボックスをトルクの値に反映
 
-			if (Data[i].torque == 0) {			// トルクがオフの場合
-				sv_angle_rw[i] = Data[i].angle;							// 角度→スライダー
-				sv_angle_rw_v[i].Format(_T("%d"), Data[i].angle);		// 角度→値ボックス
-				sv_angle_rw_all = Data[1].angle;
+		//	if (Data[i].torque == 0) {			// トルクがオフの場合
+		//		sv_angle_rw[i] = Data[i].angle;							// 角度→スライダー
+		//		sv_angle_rw_v[i].Format(_T("%d"), Data[i].angle);		// 角度→値ボックス
+		//		sv_angle_rw_all = Data[1].angle;
 
-			}
-			else {								// トルクがオンの場合
+		//	}
+		//	else {								// トルクがオンの場合
 
-				//if (sv_reverse_w[i] == TRUE) {	// リバースがオンの時
-				//	Data[i].g_angle = -(do_sv_angle_rw_all + sv_diff[i]);
-				//}
-				//else {							// リバースがオフの時
-				//	Data[i].g_angle = do_sv_angle_rw_all + sv_diff[i];
-				//}
-				sv_angle_rw[i] = Data[i].g_angle;						// 角度 → スライダー
-				sv_angle_rw_v[i].Format(_T("%d"), Data[i].g_angle);		// 角度 → 値ボックス
-			}
+		//		//if (sv_reverse_w[i] == TRUE) {	// リバースがオンの時
+		//		//	Data[i].g_angle = -(do_sv_angle_rw_all + sv_diff[i]);
+		//		//}
+		//		//else {							// リバースがオフの時
+		//		//	Data[i].g_angle = do_sv_angle_rw_all + sv_diff[i];
+		//		//}
+		//		sv_angle_rw[i] = Data[i].g_angle;						// 角度 → スライダー
+		//		sv_angle_rw_v[i].Format(_T("%d"), Data[i].g_angle);		// 角度 → 値ボックス
+		//	}
 
-		}
+		//}
 
 		sv_angle_rw_v_all.Format(_T("%d"), sv_angle_rw_all);		// 角度→値ボックス
+
+
 
 		// 制御時間の表示
 		temp0001.Format(_T("処理時間: %d msec (%d /%d /%d)"), Processing_time, Processing_time1, Processing_time2, Processing_time3);
