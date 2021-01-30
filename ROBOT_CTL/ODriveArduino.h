@@ -37,6 +37,8 @@ public:
 
     // Getters
     float GetVelocity(int motor_number);
+    float GetPosition(int motor_number);
+    float GetCurrent(int motor_number);
 
     // General params
     float readFloat();

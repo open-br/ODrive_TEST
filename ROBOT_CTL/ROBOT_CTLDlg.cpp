@@ -140,116 +140,116 @@ void CROBOT_CTLDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDIT5, com_openclode);
 
 	DDX_Text(pDX, IDC_ANGLE_61, sv_angle_r[1]);
-	DDX_Text(pDX, IDC_TIME_61, sv_time_r[1]);
+	//DDX_Text(pDX, IDC_TIME_61, sv_time_r[1]);
 	DDX_Text(pDX, IDC_SPEED_61, sv_speed_r[1]);
 	DDX_Text(pDX, IDC_LOAD_61, sv_load_r[1]);
 	DDX_Text(pDX, IDC_TEMP_61, sv_temperature_r[1]);
 	DDX_Text(pDX, IDC_ERR_61, sv_error_r[1]);
-	DDX_Text(pDX, IDC_diff_61, sv_diff_w[1]);
+	//DDX_Text(pDX, IDC_diff_61, sv_diff_w[1]);
 
 	DDX_Text(pDX, IDC_ANGLE_62, sv_angle_r[2]);
-	DDX_Text(pDX, IDC_TIME_62, sv_time_r[2]);
+	//DDX_Text(pDX, IDC_TIME_62, sv_time_r[2]);
 	DDX_Text(pDX, IDC_SPEED_62, sv_speed_r[2]);
 	DDX_Text(pDX, IDC_LOAD_62, sv_load_r[2]);
 	DDX_Text(pDX, IDC_TEMP_62, sv_temperature_r[2]);
 	DDX_Text(pDX, IDC_ERR_62, sv_error_r[2]);
-	DDX_Text(pDX, IDC_diff_62, sv_diff_w[2]);
+	//DDX_Text(pDX, IDC_diff_62, sv_diff_w[2]);
 
-	DDX_Text(pDX, IDC_ANGLE_63, sv_angle_r[3]);
-	DDX_Text(pDX, IDC_TIME_63, sv_time_r[3]);
-	DDX_Text(pDX, IDC_SPEED_63, sv_speed_r[3]);
-	DDX_Text(pDX, IDC_LOAD_63, sv_load_r[3]);
-	DDX_Text(pDX, IDC_TEMP_63, sv_temperature_r[3]);
-	DDX_Text(pDX, IDC_ERR_63, sv_error_r[3]);
-	DDX_Text(pDX, IDC_diff_63, sv_diff_w[3]);
+	//DDX_Text(pDX, IDC_ANGLE_63, sv_angle_r[3]);
+	//DDX_Text(pDX, IDC_TIME_63, sv_time_r[3]);
+	//DDX_Text(pDX, IDC_SPEED_63, sv_speed_r[3]);
+	//DDX_Text(pDX, IDC_LOAD_63, sv_load_r[3]);
+	//DDX_Text(pDX, IDC_TEMP_63, sv_temperature_r[3]);
+	//DDX_Text(pDX, IDC_ERR_63, sv_error_r[3]);
+	//DDX_Text(pDX, IDC_diff_63, sv_diff_w[3]);
 
-	DDX_Text(pDX, IDC_ANGLE_64, sv_angle_r[4]);
-	DDX_Text(pDX, IDC_TIME_64, sv_time_r[4]);
-	DDX_Text(pDX, IDC_SPEED_64, sv_speed_r[4]);
-	DDX_Text(pDX, IDC_LOAD_64, sv_load_r[4]);
-	DDX_Text(pDX, IDC_TEMP_64, sv_temperature_r[4]);
-	DDX_Text(pDX, IDC_ERR_64, sv_error_r[4]);
-	DDX_Text(pDX, IDC_diff_64, sv_diff_w[4]);
+	//DDX_Text(pDX, IDC_ANGLE_64, sv_angle_r[4]);
+	//DDX_Text(pDX, IDC_TIME_64, sv_time_r[4]);
+	//DDX_Text(pDX, IDC_SPEED_64, sv_speed_r[4]);
+	//DDX_Text(pDX, IDC_LOAD_64, sv_load_r[4]);
+	//DDX_Text(pDX, IDC_TEMP_64, sv_temperature_r[4]);
+	//DDX_Text(pDX, IDC_ERR_64, sv_error_r[4]);
+	//DDX_Text(pDX, IDC_diff_64, sv_diff_w[4]);
 
-	DDX_Text(pDX, IDC_ANGLE_65, sv_angle_r[5]);
-	DDX_Text(pDX, IDC_TIME_65, sv_time_r[5]);
-	DDX_Text(pDX, IDC_SPEED_65, sv_speed_r[5]);
-	DDX_Text(pDX, IDC_LOAD_65, sv_load_r[5]);
-	DDX_Text(pDX, IDC_TEMP_65, sv_temperature_r[5]);
-	DDX_Text(pDX, IDC_ERR_65, sv_error_r[5]);
-	DDX_Text(pDX, IDC_diff_65, sv_diff_w[5]);
+	//DDX_Text(pDX, IDC_ANGLE_65, sv_angle_r[5]);
+	//DDX_Text(pDX, IDC_TIME_65, sv_time_r[5]);
+	//DDX_Text(pDX, IDC_SPEED_65, sv_speed_r[5]);
+	//DDX_Text(pDX, IDC_LOAD_65, sv_load_r[5]);
+	//DDX_Text(pDX, IDC_TEMP_65, sv_temperature_r[5]);
+	//DDX_Text(pDX, IDC_ERR_65, sv_error_r[5]);
+	//DDX_Text(pDX, IDC_diff_65, sv_diff_w[5]);
 
-	DDX_Text(pDX, IDC_ANGLE_66, sv_angle_r[6]);
-	DDX_Text(pDX, IDC_TIME_66, sv_time_r[6]);
-	DDX_Text(pDX, IDC_SPEED_66, sv_speed_r[6]);
-	DDX_Text(pDX, IDC_LOAD_66, sv_load_r[6]);
-	DDX_Text(pDX, IDC_TEMP_66, sv_temperature_r[6]);
-	DDX_Text(pDX, IDC_ERR_66, sv_error_r[6]);
-	DDX_Text(pDX, IDC_diff_66, sv_diff_w[6]);
+	//DDX_Text(pDX, IDC_ANGLE_66, sv_angle_r[6]);
+	//DDX_Text(pDX, IDC_TIME_66, sv_time_r[6]);
+	//DDX_Text(pDX, IDC_SPEED_66, sv_speed_r[6]);
+	//DDX_Text(pDX, IDC_LOAD_66, sv_load_r[6]);
+	//DDX_Text(pDX, IDC_TEMP_66, sv_temperature_r[6]);
+	//DDX_Text(pDX, IDC_ERR_66, sv_error_r[6]);
+	//DDX_Text(pDX, IDC_diff_66, sv_diff_w[6]);
 
-	DDX_Text(pDX, IDC_ANGLE_67, sv_angle_r[7]);
-	DDX_Text(pDX, IDC_TIME_67, sv_time_r[7]);
-	DDX_Text(pDX, IDC_SPEED_67, sv_speed_r[7]);
-	DDX_Text(pDX, IDC_LOAD_67, sv_load_r[7]);
-	DDX_Text(pDX, IDC_TEMP_67, sv_temperature_r[7]);
-	DDX_Text(pDX, IDC_ERR_67, sv_error_r[7]);
-	DDX_Text(pDX, IDC_diff_67, sv_diff_w[7]);
+	//DDX_Text(pDX, IDC_ANGLE_67, sv_angle_r[7]);
+	//DDX_Text(pDX, IDC_TIME_67, sv_time_r[7]);
+	//DDX_Text(pDX, IDC_SPEED_67, sv_speed_r[7]);
+	//DDX_Text(pDX, IDC_LOAD_67, sv_load_r[7]);
+	//DDX_Text(pDX, IDC_TEMP_67, sv_temperature_r[7]);
+	//DDX_Text(pDX, IDC_ERR_67, sv_error_r[7]);
+	//DDX_Text(pDX, IDC_diff_67, sv_diff_w[7]);
 
-	DDX_Text(pDX, IDC_ANGLE_68, sv_angle_r[8]);
-	DDX_Text(pDX, IDC_TIME_68, sv_time_r[8]);
-	DDX_Text(pDX, IDC_SPEED_68, sv_speed_r[8]);
-	DDX_Text(pDX, IDC_LOAD_68, sv_load_r[8]);
-	DDX_Text(pDX, IDC_TEMP_68, sv_temperature_r[8]);
-	DDX_Text(pDX, IDC_ERR_68, sv_error_r[8]);
-	DDX_Text(pDX, IDC_diff_68, sv_diff_w[8]);
+	//DDX_Text(pDX, IDC_ANGLE_68, sv_angle_r[8]);
+	//DDX_Text(pDX, IDC_TIME_68, sv_time_r[8]);
+	//DDX_Text(pDX, IDC_SPEED_68, sv_speed_r[8]);
+	//DDX_Text(pDX, IDC_LOAD_68, sv_load_r[8]);
+	//DDX_Text(pDX, IDC_TEMP_68, sv_temperature_r[8]);
+	//DDX_Text(pDX, IDC_ERR_68, sv_error_r[8]);
+	//DDX_Text(pDX, IDC_diff_68, sv_diff_w[8]);
 
-	DDX_Check(pDX, IDC_CHK_TORQUE_61, sv_torque_w[1]);
-	DDX_Check(pDX, IDC_CHK_TORQUE_62, sv_torque_w[2]);
-	DDX_Check(pDX, IDC_CHK_TORQUE_63, sv_torque_w[3]);
-	DDX_Check(pDX, IDC_CHK_TORQUE_64, sv_torque_w[4]);
-	DDX_Check(pDX, IDC_CHK_TORQUE_65, sv_torque_w[5]);
-	DDX_Check(pDX, IDC_CHK_TORQUE_66, sv_torque_w[6]);
-	DDX_Check(pDX, IDC_CHK_TORQUE_67, sv_torque_w[7]);
-	DDX_Check(pDX, IDC_CHK_TORQUE_68, sv_torque_w[8]);
+	//DDX_Check(pDX, IDC_CHK_TORQUE_61, sv_torque_w[1]);
+	//DDX_Check(pDX, IDC_CHK_TORQUE_62, sv_torque_w[2]);
+	//DDX_Check(pDX, IDC_CHK_TORQUE_63, sv_torque_w[3]);
+	//DDX_Check(pDX, IDC_CHK_TORQUE_64, sv_torque_w[4]);
+	//DDX_Check(pDX, IDC_CHK_TORQUE_65, sv_torque_w[5]);
+	//DDX_Check(pDX, IDC_CHK_TORQUE_66, sv_torque_w[6]);
+	//DDX_Check(pDX, IDC_CHK_TORQUE_67, sv_torque_w[7]);
+	//DDX_Check(pDX, IDC_CHK_TORQUE_68, sv_torque_w[8]);
 
-	DDX_Check(pDX, IDC_CHK_REVERSE_62, sv_reverse_w[2]);
-	DDX_Check(pDX, IDC_CHK_REVERSE_63, sv_reverse_w[3]);
-	DDX_Check(pDX, IDC_CHK_REVERSE_64, sv_reverse_w[4]);
-	DDX_Check(pDX, IDC_CHK_REVERSE_65, sv_reverse_w[5]);
-	DDX_Check(pDX, IDC_CHK_REVERSE_66, sv_reverse_w[6]);
-	DDX_Check(pDX, IDC_CHK_REVERSE_67, sv_reverse_w[7]);
-	DDX_Check(pDX, IDC_CHK_REVERSE_68, sv_reverse_w[8]);
+	//DDX_Check(pDX, IDC_CHK_REVERSE_62, sv_reverse_w[2]);
+	//DDX_Check(pDX, IDC_CHK_REVERSE_63, sv_reverse_w[3]);
+	//DDX_Check(pDX, IDC_CHK_REVERSE_64, sv_reverse_w[4]);
+	//DDX_Check(pDX, IDC_CHK_REVERSE_65, sv_reverse_w[5]);
+	//DDX_Check(pDX, IDC_CHK_REVERSE_66, sv_reverse_w[6]);
+	//DDX_Check(pDX, IDC_CHK_REVERSE_67, sv_reverse_w[7]);
+	//DDX_Check(pDX, IDC_CHK_REVERSE_68, sv_reverse_w[8]);
 
 	DDX_Slider(pDX, IDC_ANGLE_SL61, sv_angle_rw[1]);
 	DDX_Slider(pDX, IDC_ANGLE_SL62, sv_angle_rw[2]);
-	DDX_Slider(pDX, IDC_ANGLE_SL63, sv_angle_rw[3]);
-	DDX_Slider(pDX, IDC_ANGLE_SL64, sv_angle_rw[4]);
-	DDX_Slider(pDX, IDC_ANGLE_SL65, sv_angle_rw[5]);
-	DDX_Slider(pDX, IDC_ANGLE_SL66, sv_angle_rw[6]);
-	DDX_Slider(pDX, IDC_ANGLE_SL67, sv_angle_rw[7]);
-	DDX_Slider(pDX, IDC_ANGLE_SL68, sv_angle_rw[8]);
+	//DDX_Slider(pDX, IDC_ANGLE_SL63, sv_angle_rw[3]);
+	//DDX_Slider(pDX, IDC_ANGLE_SL64, sv_angle_rw[4]);
+	//DDX_Slider(pDX, IDC_ANGLE_SL65, sv_angle_rw[5]);
+	//DDX_Slider(pDX, IDC_ANGLE_SL66, sv_angle_rw[6]);
+	//DDX_Slider(pDX, IDC_ANGLE_SL67, sv_angle_rw[7]);
+	//DDX_Slider(pDX, IDC_ANGLE_SL68, sv_angle_rw[8]);
 
 	DDX_Slider(pDX, IDC_ANGLE_SALL, sv_angle_rw_all);
 
-	DDX_Text(pDX, IDC_ANGLE_V61, sv_angle_rw_v[1]);
-	DDX_Text(pDX, IDC_ANGLE_V62, sv_angle_rw_v[2]);
-	DDX_Text(pDX, IDC_ANGLE_V63, sv_angle_rw_v[3]);
-	DDX_Text(pDX, IDC_ANGLE_V64, sv_angle_rw_v[4]);
-	DDX_Text(pDX, IDC_ANGLE_V65, sv_angle_rw_v[5]);
-	DDX_Text(pDX, IDC_ANGLE_V66, sv_angle_rw_v[6]);
-	DDX_Text(pDX, IDC_ANGLE_V67, sv_angle_rw_v[7]);
-	DDX_Text(pDX, IDC_ANGLE_V68, sv_angle_rw_v[8]);
+	//DDX_Text(pDX, IDC_ANGLE_V61, sv_angle_rw_v[1]);
+	//DDX_Text(pDX, IDC_ANGLE_V62, sv_angle_rw_v[2]);
+	//DDX_Text(pDX, IDC_ANGLE_V63, sv_angle_rw_v[3]);
+	//DDX_Text(pDX, IDC_ANGLE_V64, sv_angle_rw_v[4]);
+	//DDX_Text(pDX, IDC_ANGLE_V65, sv_angle_rw_v[5]);
+	//DDX_Text(pDX, IDC_ANGLE_V66, sv_angle_rw_v[6]);
+	//DDX_Text(pDX, IDC_ANGLE_V67, sv_angle_rw_v[7]);
+	//DDX_Text(pDX, IDC_ANGLE_V68, sv_angle_rw_v[8]);
 
 	DDX_Text(pDX, IDC_ANGLE_VALL, sv_angle_rw_v_all);
 
 	DDX_Control(pDX, IDC_ANGLE_SL61, sv_angle_sl_ctl[1]);
 	DDX_Control(pDX, IDC_ANGLE_SL62, sv_angle_sl_ctl[2]);
-	DDX_Control(pDX, IDC_ANGLE_SL63, sv_angle_sl_ctl[3]);
-	DDX_Control(pDX, IDC_ANGLE_SL64, sv_angle_sl_ctl[4]);
-	DDX_Control(pDX, IDC_ANGLE_SL65, sv_angle_sl_ctl[5]);
-	DDX_Control(pDX, IDC_ANGLE_SL66, sv_angle_sl_ctl[6]);
-	DDX_Control(pDX, IDC_ANGLE_SL67, sv_angle_sl_ctl[7]);
-	DDX_Control(pDX, IDC_ANGLE_SL68, sv_angle_sl_ctl[8]);
+	//DDX_Control(pDX, IDC_ANGLE_SL63, sv_angle_sl_ctl[3]);
+	//DDX_Control(pDX, IDC_ANGLE_SL64, sv_angle_sl_ctl[4]);
+	//DDX_Control(pDX, IDC_ANGLE_SL65, sv_angle_sl_ctl[5]);
+	//DDX_Control(pDX, IDC_ANGLE_SL66, sv_angle_sl_ctl[6]);
+	//DDX_Control(pDX, IDC_ANGLE_SL67, sv_angle_sl_ctl[7]);
+	//DDX_Control(pDX, IDC_ANGLE_SL68, sv_angle_sl_ctl[8]);
 
 	DDX_Control(pDX, IDC_ANGLE_SALL, sv_angle_sl_ctl_all);
 
@@ -264,7 +264,7 @@ void CROBOT_CTLDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_STOP, test_stop);
 
 	
-	DDX_Text(pDX, IDC_sv_cnt, sv_count_s);
+	//DDX_Text(pDX, IDC_sv_cnt, sv_count_s);
 
 	DDX_Text(pDX, IDC_pointA, pointA);
 	DDX_Text(pDX, IDC_pointB, pointB);
@@ -346,7 +346,7 @@ BOOL CROBOT_CTLDlg::OnInitDialog()
 	char part_name[10];
 
 
-	for (i = 1; i < 9; i++) {
+	for (i = 1; i < 3; i++) {
 		//////////////////スライダーの範囲を設定する
 
 		sprintf_s(part_name, "SURVO_%d", i);
@@ -669,6 +669,14 @@ void thread_motor(void)
 		//RSGetDataALL();		// ノーマルサーボ取得
 
 
+		// 速度取得
+		Data[1].speed = ODrive.GetVelocity(0) *1000 ;	//
+
+		Data[1].angle = ODrive.GetPosition(0) * 100;
+		
+		Data[1].load = ODrive.GetCurrent(0) * 1000;
+		
+
 		Processing_time1 = clock() - now_time;
 
 		// トルクに関して、違っていたら保存＆反映
@@ -715,28 +723,28 @@ void thread_motor(void)
 
 
 
-		//if (flag_csv) {	// CSVに記録
+		if (flag_csv) {	// CSVに記録
 
-		//	// 時間の取得
-		//	GetSystemTime(&st);
-		//	// wHourを９時間足して、日本時間にする
-		//	fprintf_s(csv_fp, "\"%04d/%02d/%02d_%02d:%02d:%02d.%03d\",",
-		//		st.wYear, st.wMonth, st.wDay,
-		//		st.wHour + 9, st.wMinute, st.wSecond, st.wMilliseconds);
+			// 時間の取得
+			GetSystemTime(&st);
+			// wHourを９時間足して、日本時間にする
+			fprintf_s(csv_fp, "\"%04d/%02d/%02d_%02d:%02d:%02d.%03d\",",
+				st.wYear, st.wMonth, st.wDay,
+				st.wHour + 9, st.wMinute, st.wSecond, st.wMilliseconds);
 
-		//	for (i = 1; i < 9; i++) {
-		//		//トルクオフなら取得値　オンなら指示角 g_angle	
-		//		fprintf_s(csv_fp, "%d,", Data[i].g_angle); // 目標角度
-		//		fprintf_s(csv_fp, "%d,", Data[i].angle);   // 実測角度
-		//		fprintf_s(csv_fp, "%d,", Data[i].speed);   // 実測角速度
-		//		fprintf_s(csv_fp, "%d,", Data[i].load);    // 実測電流
-		//		fprintf_s(csv_fp, "%d,", Data[i].temperature); // 実測温度
-		//		fprintf_s(csv_fp, "0x%04x,", Data[i].error);   // エラー
-		//	}
+			for (i = 1; i < 3; i++) {
+				//トルクオフなら取得値　オンなら指示角 g_angle	
+				fprintf_s(csv_fp, "%d,", Data[i].g_angle); // 目標角度
+				fprintf_s(csv_fp, "%d,", Data[i].angle);   // 実測角度
+				fprintf_s(csv_fp, "%d,", Data[i].speed);   // 実測角速度
+				fprintf_s(csv_fp, "%d,", Data[i].load);    // 実測電流
+				fprintf_s(csv_fp, "%d,", Data[i].temperature); // 実測温度
+				fprintf_s(csv_fp, "0x%04x,", Data[i].error);   // エラー
+			}
 
-		//	fprintf_s(csv_fp, "\n");
+			fprintf_s(csv_fp, "\n");
 
-		//}
+		}
 
 
 
@@ -803,8 +811,14 @@ void CROBOT_CTLDlg::OnTimer(UINT_PTR nIDEvent)
 
 		//}
 
+		sv_speed_r[1].Format(_T("%.2f"), (float)Data[1].speed / 1000);					//受信した値[速度]を格納
+		sv_angle_r[1].Format(_T("%.2f"), (float)Data[1].angle / 100);	//受信した値[角度]を格納
+		sv_load_r[1].Format(_T("%d"), Data[1].load);						//受信した値[負荷]を格納
+		sv_angle_rw[1] = Data[1].angle;
+		
 		sv_angle_rw_v_all.Format(_T("%d"), sv_angle_rw_all);		// 角度→値ボックス
-
+		
+	
 
 
 		// 制御時間の表示
@@ -847,7 +861,7 @@ void CROBOT_CTLDlg::OnBnClickedButtonCsv()
 
 		// タイトル出力
 		fprintf_s(csv_fp, "出力時間,");
-		for (i = 1; i < 9; i++) {
+		for (i = 1; i < 3; i++) {
 			//トルクオフなら取得値　オンなら指示角 g_angle	
 			fprintf_s(csv_fp, "目標角度(ID:%d),", i); // 目標角度
 			fprintf_s(csv_fp, "実測角度(ID:%d),", i);   // 実測角度
