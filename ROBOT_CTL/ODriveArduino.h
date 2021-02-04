@@ -1,7 +1,6 @@
 
 //#ifndef ODriveArduino_h
 //#define ODriveArduino_h
-
 //#include "Arduino.h"
 
 class ODriveArduino {
@@ -10,7 +9,6 @@ public:
     char flag_opened;	//comポートが開かれているかどうか
     char comport[16];	//comポート名
     int baudrate;		//ボーレートをここに出力
-
 
     enum AxisState_t {
         AXIS_STATE_UNDEFINED = 0,           //<! will fall through to idle
@@ -35,6 +33,8 @@ public:
     void SetCurrent(int motor_number, float current);
     void TrapezoidalMove(int motor_number, float position);
 
+    void reset();
+
     // Getters
     float GetVelocity(int motor_number);
     float GetPosition(int motor_number);
@@ -52,7 +52,6 @@ public:
     void ODriveINIT();
 
 private:
-
     //Stream& serial_;
 
     HANDLE		hComm = NULL;		// 通信用ハンドル

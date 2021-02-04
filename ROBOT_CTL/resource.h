@@ -22,6 +22,7 @@
 #define IDC_BUTTON_CSV                  1009
 #define IDC_SV_OPEN                     1010
 #define IDC_SV_CLOSE                    1011
+#define IDC_BUTTON19                    1012
 #define IDC_EDIT5                       1014
 #define IDC_BUTTON6                     1015
 #define IDC_BUTTON7                     1016
@@ -34,12 +35,14 @@
 #define IDC_ANGLE_SL71                  1023
 #define IDC_ANGLE_SALL                  1023
 #define IDC_ANGLE_71                    1024
+#define IDC_ANGLE_SALL2                 1024
 #define IDC_ANGLE_V61                   1025
 #define IDC_CHK_TORQUE_61               1026
 #define IDC_ANGLE_V71                   1027
 #define IDC_ANGLE_VALL                  1027
 #define IDC_ANGLE_SL62                  1028
 #define IDC_CHK_TORQUE_71               1029
+#define IDC_ANGLE_VALL2                 1029
 #define IDC_ANGLE_SL72                  1030
 #define IDC_CHK_REVERSE_61              1030
 #define IDC_ANGLE_91                    1031
@@ -150,8 +153,10 @@
 #define IDC_LIST2                       1146
 #define IDC_ANGLE_SL91                  1154
 #define ID_PLAY2                        1155
+#define IDC_EDIT9                       1157
 #define IDC_ANGLE_V91                   1158
 #define IDC_CHK_TORQUE_91               1159
+#define IDC_EDIT11                      1159
 #define IDC_ANGLE_SL92                  1161
 #define IDC_ANGLE_V92                   1165
 #define IDC_CHK_TORQUE_92               1166
@@ -301,7 +306,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        138
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1157
+#define _APS_NEXT_CONTROL_VALUE         1158
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

@@ -7,7 +7,6 @@
 
 #define COM_PORT		(char *)"COM1"	// 通信ポートの指定
 
-
 int sjlen(const char* str);
 
 static const int kMotorOffsetFloat = 2;
@@ -84,37 +83,37 @@ void ODriveArduino::TrapezoidalMove(int motor_number, float position){
 	send((char*)sendbuf, sjlen((char*)sendbuf));
 }
 
+void ODriveArduino::reset() {
+	// ODriveの初期化
+
+	char sendbuf[100];
+	// 送信バッファクリア
+	memset(sendbuf, 0x00, sizeof(sendbuf));
+
+	sprintf_s(sendbuf, "sr\n");
+	send((char*)sendbuf, sjlen((char*)sendbuf));
+}
+
 void ODriveArduino::ODriveINIT() {
 
-	char sendbuf1[100];
-	char sendbuf2[100];
-	char sendbuf3[100];
-	char sendbuf4[100];
-
+	char sendbuf[100];
 	int requested_state;
+	
+	memset(sendbuf, 0x00, sizeof(sendbuf));	// 読み込みバッファクリア
+	sprintf_s(sendbuf, "w axis0.controller.config.vel_limit %f\n", 1000.0f);
+	send((char*)sendbuf, sjlen((char*)sendbuf));
 
-	// 読み込みバッファクリア
-	memset(sendbuf1, 0x00, sizeof(sendbuf1));
-	// 読み込みバッファクリア
-	memset(sendbuf2, 0x00, sizeof(sendbuf2));
-	// 読み込みバッファクリア
-	memset(sendbuf3, 0x00, sizeof(sendbuf3));
-	// 読み込みバッファクリア
-	memset(sendbuf4, 0x00, sizeof(sendbuf4));
+	memset(sendbuf, 0x00, sizeof(sendbuf));	// 読み込みバッファクリア
+	sprintf_s(sendbuf, "w axis0.motor.config.current_lim %f\n", 11.0f);
+	send((char*)sendbuf, sjlen((char*)sendbuf));
 
+	//memset(sendbuf, 0x00, sizeof(sendbuf));	// 読み込みバッファクリア
+	//sprintf_s(sendbuf, "w axis1.controller.config.vel_limit %f\n", 1000.0f);
+	//send((char*)sendbuf, sjlen((char*)sendbuf));
 
-	sprintf_s(sendbuf1, "w axis0.controller.config.vel_limit %f\n", 1000.0f);
-	send((char*)sendbuf1, sjlen((char*)sendbuf1));
-
-	sprintf_s(sendbuf2, "w axis0.motor.config.current_lim %f\n", 11.0f);
-	send((char*)sendbuf2, sjlen((char*)sendbuf2));
-
-	sprintf_s(sendbuf3, "w axis1.controller.config.vel_limit %f\n", 1000.0f);
-	send((char*)sendbuf3, sjlen((char*)sendbuf3));
-
-	sprintf_s(sendbuf4, "w axis1.motor.config.current_lim %f\n", 11.0f);
-	send((char*)sendbuf4, sjlen((char*)sendbuf4));
-
+	//memset(sendbuf, 0x00, sizeof(sendbuf));	// 読み込みバッファクリア
+	//sprintf_s(sendbuf, "w axis1.motor.config.current_lim %f\n", 11.0f);
+	//send((char*)sendbuf, sjlen((char*)sendbuf));
 
 	requested_state = AXIS_STATE_MOTOR_CALIBRATION;
 	if (!run_state(0, requested_state, true)) return;
@@ -124,7 +123,6 @@ void ODriveArduino::ODriveINIT() {
 
 	requested_state = AXIS_STATE_CLOSED_LOOP_CONTROL;
 	if (!run_state(0, requested_state, false /*don't wait*/)) return;
-
 }
 
 
@@ -169,8 +167,6 @@ float ODriveArduino::GetCurrent(int motor_number) {
 	send((char*)sendbuf, sjlen((char*)sendbuf));
 	return readFloat();
 }
-
-
 
 int ODriveArduino::readInt() {
     //return readString().toInt();
@@ -232,7 +228,6 @@ CString ODriveArduino::readString() {
 
 
 //---------------------------------------------------------------------------
-// Futabaのsampleから拝借
 bool ODriveArduino::init(char* comport_in, int baudrate)
 {
 	bool flag = true;
