@@ -16,13 +16,16 @@
 #define IDC_EDIT3                       1005
 #define IDC_BUTTON1                     1006
 #define IDC_BUTTON2                     1007
+#define IDC_READ_CONF                   1007
 #define IDC_BUTTON16                    1008
 #define IDC_BUTTON_DIFF                 1008
+#define IDC_WRITE_CONF                  1008
 #define IDC_BUTTON17                    1009
 #define IDC_BUTTON_CSV                  1009
 #define IDC_SV_OPEN                     1010
 #define IDC_SV_CLOSE                    1011
 #define IDC_BUTTON19                    1012
+#define IDC_SAVE_ODRIVE                 1012
 #define IDC_EDIT5                       1014
 #define IDC_BUTTON6                     1015
 #define IDC_BUTTON7                     1016
@@ -117,6 +120,7 @@
 #define IDC_pointA                      1102
 #define IDC_BUTTON3                     1103
 #define IDC_BUTTON_ZERO                 1103
+#define IDC_BUTTON_aaa                  1103
 #define IDC_BUTTON4                     1104
 #define IDC_BUTTON5                     1105
 #define IDC_BUTTON11                    1106
@@ -147,6 +151,7 @@
 #define IDC_MOTION_SAVE                 1127
 #define IDC_EDIT8                       1128
 #define IDC_saisei_kaishi               1128
+#define IDC_vel_lim                     1128
 #define IDC_MFCLINK1                    1135
 #define IDC_BUTTON15                    1137
 #define IDC_BUTTON_OK                   1145
@@ -154,6 +159,7 @@
 #define IDC_ANGLE_SL91                  1154
 #define ID_PLAY2                        1155
 #define IDC_EDIT9                       1157
+#define IDC_current_lim                 1157
 #define IDC_ANGLE_V91                   1158
 #define IDC_CHK_TORQUE_91               1159
 #define IDC_EDIT11                      1159

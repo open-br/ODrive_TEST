@@ -33,6 +33,11 @@ public:
     void SetCurrent(int motor_number, float current);
     void TrapezoidalMove(int motor_number, float position);
 
+
+    void Set_Vel_limit(int motor_number, float Vel_limit);
+    void Set_Current_lim(int motor_number, float Current_lim);
+
+
     void reset();
 
     // Getters
@@ -40,6 +45,9 @@ public:
     float GetPosition(int motor_number);
     float GetCurrent(int motor_number);
 
+    float Get_Vel_limit(int motor_number);
+    float Get_Current_lim(int motor_number);
+    
     // General params
     float readFloat();
     int readInt();

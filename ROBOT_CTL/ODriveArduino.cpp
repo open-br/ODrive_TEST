@@ -126,6 +126,53 @@ void ODriveArduino::ODriveINIT() {
 }
 
 
+float ODriveArduino::Get_Vel_limit(int motor_number) {
+
+	char sendbuf[200];
+	// 送信バッファクリア
+	memset(sendbuf, 0x00, sizeof(sendbuf));
+	sprintf_s(sendbuf, "r axis%d.controller.config.vel_limit\n", motor_number);
+	send((char*)sendbuf, sjlen((char*)sendbuf));
+
+	return readFloat();
+}
+
+
+
+float ODriveArduino::Get_Current_lim(int motor_number) {
+
+	char sendbuf[200];
+	// 送信バッファクリア
+	memset(sendbuf, 0x00, sizeof(sendbuf));
+	sprintf_s(sendbuf, "r axis%d.motor.config.current_lim\n", motor_number);
+	send((char*)sendbuf, sjlen((char*)sendbuf));
+
+	return readFloat();
+}
+
+
+void ODriveArduino::Set_Vel_limit(int motor_number, float Vel_limit) {
+
+	char sendbuf[100];
+
+	memset(sendbuf, 0x00, sizeof(sendbuf));	// 読み込みバッファクリア
+	sprintf_s(sendbuf, "w axis0.controller.config.vel_limit %f\n", Vel_limit);
+	send((char*)sendbuf, sjlen((char*)sendbuf));
+	return;
+}
+
+
+void ODriveArduino::Set_Current_lim(int motor_number, float Current_lim) {
+
+	char sendbuf[100];
+
+	memset(sendbuf, 0x00, sizeof(sendbuf));	// 読み込みバッファクリア
+	sprintf_s(sendbuf, "w axis0.motor.config.current_li %f\n", Current_lim);
+	send((char*)sendbuf, sjlen((char*)sendbuf));
+	return;
+}
+
+
 
 float ODriveArduino::readFloat(void) {
 	//return readString().toFloat();

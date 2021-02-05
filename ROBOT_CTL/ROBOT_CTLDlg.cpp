@@ -118,6 +118,9 @@ CROBOT_CTLDlg::CROBOT_CTLDlg(CWnd* pParent /*=NULL*/)
 	, motion_file_select(_T(""))
 	, motion_name(_T(""))
 
+	, Current_lim(_T("0"))
+	, Vel_limit(_T("0"))
+
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 	m_pAutoProxy = NULL;
@@ -185,7 +188,12 @@ void CROBOT_CTLDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_time_B, time_B);
 	DDX_Text(pDX, IDC_timeAB, timeAB);
 	DDX_Text(pDX, IDC_timeBA, timeBA);
-		
+
+
+	// ODrve コンフィグ
+	DDX_Text(pDX, IDC_vel_lim, Vel_limit);
+	DDX_Text(pDX, IDC_current_lim, Current_lim);
+
 }
 
 BEGIN_MESSAGE_MAP(CROBOT_CTLDlg, CDialogEx)
@@ -208,6 +216,10 @@ BEGIN_MESSAGE_MAP(CROBOT_CTLDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_STOP, &CROBOT_CTLDlg::OnBnClickedStop)
 	ON_BN_CLICKED(IDC_PLAY2, &CROBOT_CTLDlg::OnBnClickedPlay2)
 	ON_BN_CLICKED(IDC_BUTTON4, &CROBOT_CTLDlg::OnBnClickedButton4)
+	ON_BN_CLICKED(IDC_READ_CONF, &CROBOT_CTLDlg::OnBnClickedReadConf)
+	ON_BN_CLICKED(IDC_WRITE_CONF, &CROBOT_CTLDlg::OnBnClickedWriteConf)
+	ON_BN_CLICKED(IDC_SAVE_ODRIVE, &CROBOT_CTLDlg::OnBnClickedSaveOdrive)
+	ON_BN_CLICKED(IDC_BUTTON_aaa, &CROBOT_CTLDlg::OnBnClickedButtonaaa)
 END_MESSAGE_MAP()
 
 
@@ -1040,8 +1052,122 @@ void CROBOT_CTLDlg::OnBnClickedButton4()
 	ODrive.ODriveINIT();
 
 
+	ODrive.close();	// シリアルポートクローズ
+
+}
+
+
+void CROBOT_CTLDlg::OnBnClickedReadConf()
+{
+	// TODO: ここにコントロール通知ハンドラー コードを追加します。
+
+
+
+
+
+	float a=0, b=0;
+	
+	if (ODrive.init(get_port, get_baud) != true) {		//	COMポート RS232Cの初期化
+											//	printf("ポート(%s)がオープン出来ませんでした。\n",OPN_COM);
+		while (1);
+	};
+
+
+	a = ODrive.Get_Vel_limit(0);
+	Vel_limit.Format(_T("%f []"), a);
+	
+
+	b = ODrive.Get_Current_lim(0);
+	Current_lim.Format(_T("%f []"), b);
+
+
+	UpdateData(FALSE);	// 値→GUI
+
+
+	ODrive.close();	// シリアルポートクローズ
+}
+
+
+void CROBOT_CTLDlg::OnBnClickedWriteConf()
+{
+	// TODO: ここにコントロール通知ハンドラー コードを追加します。
+
+	if (ODrive.init(get_port, get_baud) != true) {		//	COMポート RS232Cの初期化
+										//	printf("ポート(%s)がオープン出来ませんでした。\n",OPN_COM);
+		while (1);
+	};
+
+
+	ODrive.Set_Vel_limit(0, 10000.0f);
+	ODrive.Set_Current_lim(0, 11.0f);
+
 
 	ODrive.close();	// シリアルポートクローズ
 
 
+}
+
+
+void CROBOT_CTLDlg::OnBnClickedSaveOdrive()
+{
+	// TODO: ここにコントロール通知ハンドラー コードを追加します。
+
+
+
+	//Current_lim.Format(_T("sssss"));
+
+
+
+	//UpdateData(FALSE);	// 値→GUI
+
+
+	float a = 0, b = 0;
+
+	if (ODrive.init(get_port, get_baud) != true) {		//	COMポート RS232Cの初期化
+											//	printf("ポート(%s)がオープン出来ませんでした。\n",OPN_COM);
+		while (1);
+	};
+
+
+	a = ODrive.Get_Vel_limit(0);
+	Vel_limit.Format(_T("%f []"), a);
+
+
+	b = ODrive.Get_Current_lim(0);
+	Current_lim.Format(_T("%f []"), b);
+
+
+	UpdateData(FALSE);	// 値→GUI
+
+
+	ODrive.close();	// シリアルポートクローズ
+
+}
+
+
+void CROBOT_CTLDlg::OnBnClickedButtonaaa()
+{
+	// TODO: ここにコントロール通知ハンドラー コードを追加します。
+
+	float a = 0, b = 0;
+
+	if (ODrive.init(get_port, get_baud) != true) {		//	COMポート RS232Cの初期化
+											//	printf("ポート(%s)がオープン出来ませんでした。\n",OPN_COM);
+		while (1);
+	};
+
+
+	a = ODrive.Get_Vel_limit(0);
+	b = ODrive.Get_Current_lim(0);
+
+	Vel_limit.Format(_T("%f"), a);
+
+
+	Current_lim.Format(_T("%f"), b);
+
+
+
+	ODrive.close();	// シリアルポートクローズ
+
+	UpdateData(FALSE);	// 値→GUI
 }

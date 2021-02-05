@@ -74,9 +74,8 @@ public:
 	CString sv_error_r[100];
 	CString sv_diff_w[100];
 
-
-
-
+	CString Current_lim;
+	CString Vel_limit;
 
 	int sv_angle_rw[100];
 	CString sv_angle_rw_v[100];
@@ -123,4 +122,8 @@ public:
 	afx_msg void OnBnClickedStop();
 	afx_msg void OnBnClickedPlay2();
 	afx_msg void OnBnClickedButton4();
+	afx_msg void OnBnClickedReadConf();
+	afx_msg void OnBnClickedWriteConf();
+	afx_msg void OnBnClickedSaveOdrive();
+	afx_msg void OnBnClickedButtonaaa();
 };
