@@ -17,6 +17,7 @@
 #define IDC_BUTTON1                     1006
 #define IDC_BUTTON2                     1007
 #define IDC_READ_CONF                   1007
+#define IDC_R_CONF                      1007
 #define IDC_BUTTON16                    1008
 #define IDC_BUTTON_DIFF                 1008
 #define IDC_WRITE_CONF                  1008

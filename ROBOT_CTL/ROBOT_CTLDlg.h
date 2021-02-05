@@ -54,7 +54,7 @@ public:
 	afx_msg void OnBnClickedSvOpen();
 	afx_msg void OnBnClickedSvClose();
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
-	afx_msg void OnBnClickedRec();
+	//afx_msg void OnBnClickedRec();
 
 
 
@@ -116,8 +116,8 @@ public:
 
 
 	afx_msg void OnBnClickedButtonCsv();
-	afx_msg void OnBnClickedButtonZero();
-	afx_msg void OnBnClickedButtonDiff();
+	//afx_msg void OnBnClickedButtonZero();
+	//afx_msg void OnBnClickedButtonDiff();
 	afx_msg void OnBnClickedPlay();
 	afx_msg void OnBnClickedStop();
 	afx_msg void OnBnClickedPlay2();
@@ -126,4 +126,6 @@ public:
 	afx_msg void OnBnClickedWriteConf();
 	afx_msg void OnBnClickedSaveOdrive();
 	afx_msg void OnBnClickedButtonaaa();
+	afx_msg void OnBnClickedRConf();
+	afx_msg void OnBnClickedButton3();
 };

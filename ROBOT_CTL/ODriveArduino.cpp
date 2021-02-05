@@ -94,6 +94,17 @@ void ODriveArduino::reset() {
 	send((char*)sendbuf, sjlen((char*)sendbuf));
 }
 
+void ODriveArduino::save_conf() {
+	// ODriveの初期化
+
+	char sendbuf[100];
+	// 送信バッファクリア
+	memset(sendbuf, 0x00, sizeof(sendbuf));
+
+	sprintf_s(sendbuf, "ss\n");
+	send((char*)sendbuf, sjlen((char*)sendbuf));
+}
+
 void ODriveArduino::ODriveINIT() {
 
 	char sendbuf[100];

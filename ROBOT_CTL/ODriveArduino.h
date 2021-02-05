@@ -39,6 +39,7 @@ public:
 
 
     void reset();
+    void save_conf();
 
     // Getters
     float GetVelocity(int motor_number);
