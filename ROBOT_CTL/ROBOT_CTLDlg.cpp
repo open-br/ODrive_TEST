@@ -451,8 +451,6 @@ void CROBOT_CTLDlg::OnBnClickedButton1()
 
 }
 
-
-
 void CROBOT_CTLDlg::OnBnClickedSvOpen()
 {
 	// TODO: ここにコントロール通知ハンドラー コードを追加します。
@@ -478,7 +476,6 @@ void CROBOT_CTLDlg::OnBnClickedSvOpen()
 
 }
 
-
 void CROBOT_CTLDlg::OnBnClickedSvClose()
 {
 	// TODO: ここにコントロール通知ハンドラー コードを追加します。
@@ -494,8 +491,6 @@ void CROBOT_CTLDlg::OnBnClickedSvClose()
 }
 
 //----------------------------サーボモーターの関連関数 -------------------------
-
-
 
 //モーター制御用のスレッド
 void thread_motor(void)
