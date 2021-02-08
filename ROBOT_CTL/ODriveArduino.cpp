@@ -7,7 +7,6 @@
 
 #define COM_PORT		(char *)"COM1"	// 通信ポートの指定
 
-
 static const int kMotorOffsetFloat = 2;
 static const int kMotorStrideFloat = 28;
 static const int kMotorOffsetInt32 = 0;
