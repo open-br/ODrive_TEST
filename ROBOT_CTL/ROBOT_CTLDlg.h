@@ -50,42 +50,55 @@ protected:
 public:
 	afx_msg void OnBnClickedOk();
 	afx_msg void OnBnClickedButton1();
-	afx_msg void OnBnClickedButton2();
 	afx_msg void OnBnClickedSvOpen();
 	afx_msg void OnBnClickedSvClose();
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
-	//afx_msg void OnBnClickedRec();
+	afx_msg void OnBnClickedButtonCsv();
+	afx_msg void OnBnClickedPlay();
+	afx_msg void OnBnClickedStop();
+	afx_msg void OnBnClickedPlay2();
+	afx_msg void OnBnClickedButton4();
+	afx_msg void OnBnClickedWriteConf();
+	afx_msg void OnBnClickedSaveOdrive();
+	afx_msg void OnBnClickedButton3();
 
-
-
+	// シリアルポート関連
 	CEdit com_num;
 	CString com_number;
 	CString com_baudrate;
 	CString com_openclode;
-	CString sv_count_s;
-	CString sv_angle_r[100];
-	CString sv_time_r[100];
-	CString sv_speed_r[100];
-	CString sv_load_r[100];
-	CString sv_temperature_r[100];
+
+	// 受信パラメータ(のテキスト表示用)
+	CString sv_angle_r[2];
+	CString sv_speed_r[2];
+	CString sv_load_r[2];
+
 
 	CBitmap m_bmp;  // 表示するビットマップ
 
-	CString sv_error_r[100];
-	CString sv_diff_w[100];
 
-	CString Current_lim;
-	CString Vel_limit;
 
-	int sv_angle_rw[100];
-	CString sv_angle_rw_v[100];
+
+	// ODriveのパラメータ設定用
+	CString Current_lim[2];
+	CString Vel_limit[2];
+	CString Pos_gain[2];
+	CString Vel_gain[2];
+	CString Vel_integrator_gain[2];
+
+
+	int sv_angle_rw[2];
+	CString sv_angle_rw_v[2];
+
 
 
 	CString sv_angle_rw_v_all;
+	CString sv_angle_rw_v_all1;
 
-
-	CSliderCtrl sv_angle_sl_ctl[100];
+	CSliderCtrl sv_angle_sl_ctl[2];
 	CSliderCtrl sv_angle_sl_ctl_all;
+	CSliderCtrl sv_angle_sl_ctl_all1;
+
 
 	CButton sv_opne_ctlf;
 	CButton sv_close_ctlf;
@@ -114,18 +127,6 @@ public:
 
 	int saisei_kaishi;
 
-
-	afx_msg void OnBnClickedButtonCsv();
-	//afx_msg void OnBnClickedButtonZero();
-	//afx_msg void OnBnClickedButtonDiff();
-	afx_msg void OnBnClickedPlay();
-	afx_msg void OnBnClickedStop();
-	afx_msg void OnBnClickedPlay2();
-	afx_msg void OnBnClickedButton4();
-	afx_msg void OnBnClickedReadConf();
-	afx_msg void OnBnClickedWriteConf();
-	afx_msg void OnBnClickedSaveOdrive();
-	afx_msg void OnBnClickedButtonaaa();
-	afx_msg void OnBnClickedRConf();
-	afx_msg void OnBnClickedButton3();
+	afx_msg void OnBnClickedButton2();
+	afx_msg void OnBnClickedButton20();
 };

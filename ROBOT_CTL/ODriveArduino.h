@@ -36,8 +36,12 @@ public:
 
     void Set_Vel_limit(int motor_number, float Vel_limit);
     void Set_Current_lim(int motor_number, float Current_lim);
+    void Set_pos_gain(int motor_number, float pos_gain);
+    void Set_vel_gain(int motor_number, float vel_gain);
+    void Set_vel_integrator_gain(int motor_number, float vel_integrator_gain);
 
 
+    void ODriveINIT(int axis);
     void reset();
     void save_conf();
 
@@ -48,6 +52,10 @@ public:
 
     float Get_Vel_limit(int motor_number);
     float Get_Current_lim(int motor_number);
+    float Get_pos_gain(int motor_number);
+    float Get_vel_gain(int motor_number);
+    float Get_integrator_gain(int motor_number);
+
     
     // General params
     float readFloat();
@@ -58,7 +66,7 @@ public:
 
     bool init(char* comport_in, int baudrate);
     bool close(void);
-    void ODriveINIT();
+
 
 private:
     //Stream& serial_;
@@ -72,6 +80,9 @@ private:
     int receive(char* buf_ptr, int size);
     int send(char* buf_ptr, int size);
     int CommClose();
+
+    // 送信バイト数のカウント
+    int sjlen(const char* str);
 
 };
 

@@ -7,9 +7,7 @@
 #include "ROBOT_CTLDlg.h"
 #include "DlgProxy.h"
 #include "afxdialogex.h"
-#include "futaba_rs.h"
 #include "ODriveArduino.h"
-
 #include <time.h>     // for clock()
 #include <mmsystem.h>	// timeGetTime()
 #pragma comment( lib, "winmm.lib" )
@@ -23,27 +21,40 @@
 
 // スレッドはクラス外から呼び出すため、そこで使用する変数は、グローバル変数として扱う方針
 
-futaba_rs Futaba_RS;	// サーボ制御用クラス
+
+// ODrive制御用クラス
 ODriveArduino ODrive;
 
-float pos_m0 = 0.0f;
+// ODriveのパラメータ(送信用)
+float pos_m[2] = { 0.0f ,0.0f };
 
+// ODriveのパラメータ(受信用)
+float r_pos_m[2] = { 0.0f ,0.0f };
+float r_vel_m[2] = { 0.0f ,0.0f };
+float r_current_m[2] = { 0.0f ,0.0f };
+
+// シリアルポート関連
 char get_port[10];
 int get_baud;
 
-int sv_count = 1;		// サーボの個数 (あとでsettingからオーバーライドする)
-int sv_ctl_f = 0;		// サーボコントロールフラグ
-
-sv_r Data[100];			// とりあえずID:0からID:99まで確保(サーボのデータ)
-
-clock_t Processing_time, Processing_time1, Processing_time2, Processing_time3;	// 処理時間の入れ物
+// サーボコントロールフラグ(制御スレッドのフラグ)
+int sv_ctl_f = 0;		
 
 
+// 処理時間計測用の変数
+clock_t Processing_time;
+clock_t Processing_time1;
+clock_t Processing_time2;
+clock_t Processing_time3;
+
+// CSV関連
 CString filetime;		// CSVを保存するときのファイル名
 int flag_csv = 0;		// CSVフラグ
 FILE* csv_fp;			// CSVのファイルポインタ
 
+// 指示値(スライダ)
 int sv_angle_rw_all = 0;
+int sv_angle_rw_all1 = 0;
 
 int pointA;
 int pointB;
@@ -56,13 +67,8 @@ int f_testmove = 0;
 int f_testmove_do = 0;
 int f_testmove2 = 0;
 
-int sv_diff[100];
-
-BOOL sv_torque_w[100];
-BOOL sv_reverse_w[100];
 
 // 関数
-void RSGetDataALL(void);	// 全サーボ受信
 void thread_motor(void);	// サーボ制御用スレッド
 void thread_testmove(void);	    // テスト動作用スレッド
 void thread_testmove2(void);	    // テスト動作用スレッド
@@ -118,9 +124,6 @@ CROBOT_CTLDlg::CROBOT_CTLDlg(CWnd* pParent /*=NULL*/)
 	, motion_file_select(_T(""))
 	, motion_name(_T(""))
 
-	, Current_lim(_T("0"))
-	, Vel_limit(_T("0"))
-
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 	m_pAutoProxy = NULL;
@@ -138,49 +141,46 @@ CROBOT_CTLDlg::~CROBOT_CTLDlg()
 void CROBOT_CTLDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
-	DDX_Text(pDX, IDC_EDIT2, com_number);
-	DDX_Text(pDX, IDC_EDIT3, com_baudrate);
-	DDX_Text(pDX, IDC_EDIT5, com_openclode);
 
-	DDX_Text(pDX, IDC_ANGLE_61, sv_angle_r[1]);
-	DDX_Text(pDX, IDC_SPEED_61, sv_speed_r[1]);
-	DDX_Text(pDX, IDC_LOAD_61, sv_load_r[1]);
+	// シリアルポート制御関連
+	DDX_Text(pDX, IDC_EDIT2, com_number);			// COM番号
+	DDX_Text(pDX, IDC_EDIT3, com_baudrate);			// ボーレート
+	DDX_Text(pDX, IDC_EDIT5, com_openclode);		// ステータス
+	DDX_Control(pDX, IDC_SV_OPEN, sv_opne_ctlf);	// OPEN
+	DDX_Control(pDX, IDC_SV_CLOSE, sv_close_ctlf);	// CLOSE
+	DDX_Text(pDX, IDC_TEMP0001, temp0001);			// 制御時間表示用
 
+	// ODrive 受信表示 axis0
+	DDX_Text(pDX, IDC_ANGLE_00, sv_angle_r[0]);
+	DDX_Text(pDX, IDC_SPEED_00, sv_speed_r[0]);
+	DDX_Text(pDX, IDC_LOAD_00, sv_load_r[0]);
+	DDX_Slider(pDX, IDC_ANGLE_SL00, sv_angle_rw[0]);			// 値
+	DDX_Control(pDX, IDC_ANGLE_SL00, sv_angle_sl_ctl[0]);		// スライダのコントロール
 
-	DDX_Text(pDX, IDC_ANGLE_62, sv_angle_r[2]);
-	DDX_Text(pDX, IDC_SPEED_62, sv_speed_r[2]);
-	DDX_Text(pDX, IDC_LOAD_62, sv_load_r[2]);
+	// ODrive 受信表示 axis1
+	DDX_Text(pDX, IDC_ANGLE_01, sv_angle_r[1]);
+	DDX_Text(pDX, IDC_SPEED_01, sv_speed_r[1]);
+	DDX_Text(pDX, IDC_LOAD_01, sv_load_r[1]);
+	DDX_Slider(pDX, IDC_ANGLE_SL01, sv_angle_rw[1]);			// 値
+	DDX_Control(pDX, IDC_ANGLE_SL01, sv_angle_sl_ctl[1]);		// スライダのコントロール
 
+	// 位置制御 送信用 axis0
+	DDX_Text(pDX, IDC_ANGLE_VALL, sv_angle_rw_v_all);	// 角度の値(数値表示(文字))
+	DDX_Slider(pDX, IDC_ANGLE_SALL, sv_angle_rw_all);	// スライダの値
+	DDX_Control(pDX, IDC_ANGLE_SALL, sv_angle_sl_ctl_all); // スライダのコントローラー(上限・下限の設定用)
 
+	// 位置制御 送信用 axis1
+	DDX_Text(pDX, IDC_ANGLE_VALL1, sv_angle_rw_v_all1);	// 角度の値(数値表示(文字))
+	DDX_Slider(pDX, IDC_ANGLE_SALL1, sv_angle_rw_all1);	// スライダの値
+	DDX_Control(pDX, IDC_ANGLE_SALL1, sv_angle_sl_ctl_all1); // スライダのコントローラー(上限・下限の設定用)
 
-	DDX_Slider(pDX, IDC_ANGLE_SL61, sv_angle_rw[1]);
-	DDX_Slider(pDX, IDC_ANGLE_SL62, sv_angle_rw[2]);
-
-
-	DDX_Slider(pDX, IDC_ANGLE_SALL, sv_angle_rw_all);
-
-
-
-	DDX_Text(pDX, IDC_ANGLE_VALL, sv_angle_rw_v_all);
-
-	DDX_Control(pDX, IDC_ANGLE_SL61, sv_angle_sl_ctl[1]);
-	DDX_Control(pDX, IDC_ANGLE_SL62, sv_angle_sl_ctl[2]);
-
-
-	DDX_Control(pDX, IDC_ANGLE_SALL, sv_angle_sl_ctl_all);
-
-
-	DDX_Control(pDX, IDC_SV_OPEN, sv_opne_ctlf);
-	DDX_Control(pDX, IDC_SV_CLOSE, sv_close_ctlf);
-	DDX_Text(pDX, IDC_TEMP0001, temp0001);
+	// CSV出力ボタン
 	DDX_Control(pDX, IDC_BUTTON_CSV, sv_csv_cap);
+
 
 	DDX_Control(pDX, IDC_PLAY, test_play);
 	DDX_Control(pDX, IDC_PLAY2, test_play2);
 	DDX_Control(pDX, IDC_STOP, test_stop);
-
-	
-	//DDX_Text(pDX, IDC_sv_cnt, sv_count_s);
 
 	DDX_Text(pDX, IDC_pointA, pointA);
 	DDX_Text(pDX, IDC_pointB, pointB);
@@ -189,10 +189,19 @@ void CROBOT_CTLDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_timeAB, timeAB);
 	DDX_Text(pDX, IDC_timeBA, timeBA);
 
+	// ODrve コンフィグaxis0
+	DDX_Text(pDX, IDC_vel_lim, Vel_limit[0]);
+	DDX_Text(pDX, IDC_current_lim, Current_lim[0]);
+	DDX_Text(pDX, IDC_pos_gain, Pos_gain[0]);
+	DDX_Text(pDX, IDC_vel_gain, Vel_gain[0]);
+	DDX_Text(pDX, IDC_vel_integrator_gain, Vel_integrator_gain[0]);
 
-	// ODrve コンフィグ
-	DDX_Text(pDX, IDC_vel_lim, Vel_limit);
-	DDX_Text(pDX, IDC_current_lim, Current_lim);
+	// ODrve コンフィグaxis1
+	DDX_Text(pDX, IDC_vel_lim1, Vel_limit[1]);
+	DDX_Text(pDX, IDC_current_lim1, Current_lim[1]);
+	DDX_Text(pDX, IDC_pos_gain1, Pos_gain[1]);
+	DDX_Text(pDX, IDC_vel_gain1, Vel_gain[1]);
+	DDX_Text(pDX, IDC_vel_integrator_gain1, Vel_integrator_gain[1]);
 
 }
 
@@ -205,13 +214,10 @@ BEGIN_MESSAGE_MAP(CROBOT_CTLDlg, CDialogEx)
 
 	ON_BN_CLICKED(IDOK, &CROBOT_CTLDlg::OnBnClickedOk)
 	ON_BN_CLICKED(IDC_BUTTON1, &CROBOT_CTLDlg::OnBnClickedButton1)
-	ON_BN_CLICKED(IDC_BUTTON2, &CROBOT_CTLDlg::OnBnClickedButton2)
 	ON_BN_CLICKED(IDC_SV_OPEN, &CROBOT_CTLDlg::OnBnClickedSvOpen)
 	ON_BN_CLICKED(IDC_SV_CLOSE, &CROBOT_CTLDlg::OnBnClickedSvClose)
 
 	ON_BN_CLICKED(IDC_BUTTON_CSV, &CROBOT_CTLDlg::OnBnClickedButtonCsv)
-	//ON_BN_CLICKED(IDC_BUTTON_ZERO, &CROBOT_CTLDlg::OnBnClickedButtonZero)
-	//ON_BN_CLICKED(IDC_BUTTON_DIFF, &CROBOT_CTLDlg::OnBnClickedButtonDiff)
 	ON_BN_CLICKED(IDC_PLAY, &CROBOT_CTLDlg::OnBnClickedPlay)
 	ON_BN_CLICKED(IDC_STOP, &CROBOT_CTLDlg::OnBnClickedStop)
 	ON_BN_CLICKED(IDC_PLAY2, &CROBOT_CTLDlg::OnBnClickedPlay2)
@@ -219,6 +225,8 @@ BEGIN_MESSAGE_MAP(CROBOT_CTLDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_WRITE_CONF, &CROBOT_CTLDlg::OnBnClickedWriteConf)
 	ON_BN_CLICKED(IDC_SAVE_ODRIVE, &CROBOT_CTLDlg::OnBnClickedSaveOdrive)
 	ON_BN_CLICKED(IDC_BUTTON3, &CROBOT_CTLDlg::OnBnClickedButton3)
+	ON_BN_CLICKED(IDC_BUTTON2, &CROBOT_CTLDlg::OnBnClickedButton2)
+	ON_BN_CLICKED(IDC_BUTTON20, &CROBOT_CTLDlg::OnBnClickedButton20)
 END_MESSAGE_MAP()
 
 
@@ -255,33 +263,26 @@ BOOL CROBOT_CTLDlg::OnInitDialog()
 
 	// TODO: 初期化をここに追加します。 ☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
 
-	int i;
 
-	UpdateData(TRUE);	// GUI→値
-
-
-	//全サーボ動作速度を0msecに設定
-	for (i = 0; i < 100; i++) {
-		Data[i].g_time = 0;
-	}
-	
-	// スライダの設定用の一時変数最大・最少・デフォルト／名前
-	int max, min;
-	char part_name[10];
-
-
-
+	sv_angle_sl_ctl[0].SetRange(-180, 180);		// 最大・最少
 	sv_angle_sl_ctl[1].SetRange(-180, 180);		// 最大・最少
-	sv_angle_sl_ctl[2].SetRange(-180, 180);		// 最大・最少
+	sv_angle_rw[0] = 50;						// デフォルト値
 	sv_angle_rw[1] = 50;						// デフォルト値
-	sv_angle_rw[2] = 50;						// デフォルト値
-
 
 	sv_angle_sl_ctl_all.SetRange(-1800,1800);
+	sv_angle_sl_ctl_all1.SetRange(-1800, 1800);
 	sv_angle_rw_all = 100;
+	sv_angle_rw_all1 = 100;
+
 	UpdateData(FALSE);	// 値→GUI
+
+	sv_angle_rw[0] = 0;						// デフォルト値
+	sv_angle_rw[1] = 0;						// デフォルト値
 	sv_angle_rw_all = 0;
+	sv_angle_rw_all1 = 0;
+
 	UpdateData(FALSE);	// 値→GUI
+
 
 	// INIファイルから取得
 	GetPrivateProfileString("serial", "COM", "INI ERROR", get_port, sizeof(get_port), SETFILE);
@@ -291,9 +292,7 @@ BOOL CROBOT_CTLDlg::OnInitDialog()
 	com_baudrate.Format(_T("%d bps"), get_baud);
 	com_openclode = "CLOSE";
 
-	sv_count = 3;
-	//sv_count = GetPrivateProfileInt("SURVO", "COUNT", 0, SETFILE);
-	//sv_count_s.Format(_T("%d 個"), sv_count);
+
 
 
 	pointA = 200;
@@ -302,17 +301,12 @@ BOOL CROBOT_CTLDlg::OnInitDialog()
 	time_B = 500;
 	timeAB = 500;
 	timeBA = 500;
-
-
 	
 	UpdateData(FALSE);	// 値→GUI
-
-	
 
 	//表示更新用のタイマーを16msで起動 (タイマーを起動しなければ、設定モードに入れる)
 	SetTimer(5678, 16, NULL);
 
-	
 
 	return TRUE;  // フォーカスをコントロールに設定した場合を除き、TRUE を返します。
 }
@@ -441,39 +435,23 @@ void CROBOT_CTLDlg::OnBnClickedOk()
 }
 
 
-void CROBOT_CTLDlg::OnBnClickedButton1()	// 全身トルクオン！
+void CROBOT_CTLDlg::OnBnClickedButton1()
 {
-	
 	// TODO: ここにコントロール通知ハンドラー コードを追加します。
-
-
-
 
 	if (ODrive.init(get_port, get_baud) != true) {		//	COMポート RS232Cの初期化
 											//	printf("ポート(%s)がオープン出来ませんでした。\n",OPN_COM);
 		while (1);
 	};
 
-
+	// リセットコマンド
 	ODrive.reset();
 
-	ODrive.close();	// シリアルポートクローズ
-
+	// シリアルポートクローズ
+	ODrive.close();
 
 }
 
-void CROBOT_CTLDlg::OnBnClickedButton2()	// 全身脱力！
-{
-	// TODO: ここにコントロール通知ハンドラー コードを追加します。
-
-	int i;
-
-	for (i = 1; i < 9; i++) {
-		sv_torque_w[i] = 0;
-	}
-
-	UpdateData(FALSE);
-}
 
 
 void CROBOT_CTLDlg::OnBnClickedSvOpen()
@@ -495,18 +473,14 @@ void CROBOT_CTLDlg::OnBnClickedSvOpen()
 	////////////スレッドの生成
 	handle = CreateThread(0, 0, (LPTHREAD_START_ROUTINE)thread_motor, NULL, 0, NULL);
 
+
+	// 表示の変更
 	sv_opne_ctlf.EnableWindow(FALSE);
 	sv_close_ctlf.EnableWindow(TRUE);
 
-	// 0.1秒待って差分を取得
-	//Sleep(100);
-	//OnBnClickedButtonDiff();
-
-	sv_angle_rw_all = Data[1].angle;
 	UpdateData(FALSE);
 
 }
-
 
 
 void CROBOT_CTLDlg::OnBnClickedSvClose()
@@ -524,29 +498,7 @@ void CROBOT_CTLDlg::OnBnClickedSvClose()
 
 }
 
-
-
 //----------------------------サーボモーターの関連関数 -------------------------
-
-
-void RSGetDataALL(void)
-{
-	int i;
-	sv_r rData[100];		// とりあえずID:0からID:99まで確保(サーボのデータ)
-
-	for (i = 1; i < sv_count+1; i++) {		// ここの数値を変数に！☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆
-		
-		rData[i] = Futaba_RS.sv_read2(i);
-		
-		Data[i].angle		= rData[i].angle;
-		Data[i].load		= rData[i].load;
-		Data[i].speed		= rData[i].speed;
-		Data[i].temperature = rData[i].temperature;
-		Data[i].time		= rData[i].time;
-		Data[i].error		= rData[i].error;
-	}
-
-}
 
 
 
@@ -558,14 +510,10 @@ void thread_motor(void)
 	SYSTEMTIME st;
 	clock_t now_time = 0,old_time = 0;	// 時間計測用
 
-
 	if (ODrive.init(get_port, get_baud) != true) {		//	COMポート RS232Cの初期化
 												//	printf("ポート(%s)がオープン出来ませんでした。\n",OPN_COM);
 		while (1);
 	};
-
-
-
 
 	while (sv_ctl_f) {
 		
@@ -574,38 +522,28 @@ void thread_motor(void)
 		Processing_time = now_time - old_time;	// 処理時間の算出
 		old_time = now_time;					// 過去時間の更新
 
-		// サーボの値を取得
 		
-		// 速度取得
-		Data[1].speed = ODrive.GetVelocity(0) * 1000;
-		Data[1].angle = ODrive.GetPosition(0) * 360.0f;
-		Data[1].load = ODrive.GetCurrent(0) * 1000;
-		
+		// ODriveパラメータ取得
+		r_vel_m[0] = ODrive.GetVelocity(0) * 1000;
+		r_pos_m[0] = ODrive.GetPosition(0) * 360.0f;
+		r_current_m[0] = ODrive.GetCurrent(0) * 1000;
+	
+		r_vel_m[1] = ODrive.GetVelocity(1) * 1000;
+		r_pos_m[1] = ODrive.GetPosition(1) * 360.0f;
+		r_current_m[1] = ODrive.GetCurrent(1) * 1000;
 
+		// 時間計測
 		Processing_time1 = clock() - now_time;
 
+		// ODriveパラメータ送信
+		pos_m[0] = (float)sv_angle_rw_all / 36.0f;
+		ODrive.SetPosition(0, pos_m[0]);
 
+		pos_m[1] = (float)sv_angle_rw_all1 / 36.0f;
+		ODrive.SetPosition(1, pos_m[1]);
 
-
+		// 時間計測
 		Processing_time2 = clock() - Processing_time1 - now_time;
-
-
-
-
-		pos_m0 = (float)sv_angle_rw_all/36.0f;
-		ODrive.SetPosition(0, pos_m0);
-
-
-
-
-
-
-
-
-
-		Processing_time3 = clock() - Processing_time2 - now_time - Processing_time1;
-
-
 
 
 		if (flag_csv) {	// CSVに記録
@@ -617,28 +555,22 @@ void thread_motor(void)
 				st.wYear, st.wMonth, st.wDay,
 				st.wHour + 9, st.wMinute, st.wSecond, st.wMilliseconds);
 
-			for (i = 1; i < 3; i++) {
+			for (i = 0; i < 2; i++) {
 				//トルクオフなら取得値　オンなら指示角 g_angle	
-				fprintf_s(csv_fp, "%d,", Data[i].g_angle); // 目標角度
-				fprintf_s(csv_fp, "%d,", Data[i].angle);   // 実測角度
-				fprintf_s(csv_fp, "%d,", Data[i].speed);   // 実測角速度
-				fprintf_s(csv_fp, "%d,", Data[i].load);    // 実測電流
-				fprintf_s(csv_fp, "%d,", Data[i].temperature); // 実測温度
-				fprintf_s(csv_fp, "0x%04x,", Data[i].error);   // エラー
+				fprintf_s(csv_fp, "%f,", pos_m[i]); // 目標角度
+				fprintf_s(csv_fp, "%f,", r_pos_m[i]);   // 実測角度
+				fprintf_s(csv_fp, "%f,", r_vel_m[i]);   // 実測角速度
+				fprintf_s(csv_fp, "%f,", r_current_m[i]);    // 実測電流
 			}
-
 			fprintf_s(csv_fp, "\n");
-
 		}
 
-
-
-
+		// 時間計測
+		Processing_time3 = clock() - Processing_time2 - now_time - Processing_time1;
 	}
 
-
-
 	ODrive.close();	// シリアルポートクローズ
+
 }
 
 
@@ -646,82 +578,36 @@ void CROBOT_CTLDlg::OnTimer(UINT_PTR nIDEvent)
 {
 	// TODO: ここにメッセージ ハンドラー コードを追加するか、既定の処理を呼び出します。
 
-
 	if (nIDEvent == 5678) {
-
-		int i;
 
 
 		if (f_testmove_do == 0) UpdateData(TRUE);		// スライダの位置・ボックスの値を変数に代入 (再生中でなければ)
 
-		//for (i = 1; i < sv_count + 1; i++) {
-		//	sv_angle_r[i].Format(_T("%.1f deg"), ((float)Data[i].angle / 10));	//受信した値[角度]を格納
-		//	sv_time_r[i].Format(_T("%.2f sec"), ((float)Data[i].time / 100));	//受信した値[時間]を格納
-		//	sv_speed_r[i].Format(_T("%d d/s"), Data[i].speed);					//受信した値[速度]を格納
-		//	sv_load_r[i].Format(_T("%d mA"), Data[i].load);						//受信した値[負荷]を格納
-		//	sv_temperature_r[i].Format(_T("%d℃"), Data[i].temperature);		//受信した値[温度]を格納
 
-		//	sv_error_r[i].Format(_T("%o"), Data[i].error);						// エラーを格納
-		//	if (Data[i].error != 0) {
-		//		sv_angle_r[i].Format(_T("XXXXX"));			// エラーのときは[XXXXX]を表示
-		//		sv_time_r[i].Format(_T("XXXXX"));			// エラーのときは[XXXXX]を表示
-		//		sv_speed_r[i].Format(_T("XXXXX"));			// エラーのときは[XXXXX]を表示
-		//		sv_load_r[i].Format(_T("XXXXX"));			// エラーのときは[XXXXX]を表示
-		//		sv_temperature_r[i].Format(_T("XXXXX"));	// エラーのときは[XXXXX]を表示
-		//	}
-
-		//	sv_diff_w[i].Format(_T("%d"), sv_diff[i]);							// 差分を格納
-
-
-		//	Data[i].torque = sv_torque_w[i];									// トルクチェックボックスをトルクの値に反映
-
-		//	if (Data[i].torque == 0) {			// トルクがオフの場合
-		//		sv_angle_rw[i] = Data[i].angle;							// 角度→スライダー
-		//		sv_angle_rw_v[i].Format(_T("%d"), Data[i].angle);		// 角度→値ボックス
-		//		sv_angle_rw_all = Data[1].angle;
-
-		//	}
-		//	else {								// トルクがオンの場合
-
-		//		//if (sv_reverse_w[i] == TRUE) {	// リバースがオンの時
-		//		//	Data[i].g_angle = -(do_sv_angle_rw_all + sv_diff[i]);
-		//		//}
-		//		//else {							// リバースがオフの時
-		//		//	Data[i].g_angle = do_sv_angle_rw_all + sv_diff[i];
-		//		//}
-		//		sv_angle_rw[i] = Data[i].g_angle;						// 角度 → スライダー
-		//		sv_angle_rw_v[i].Format(_T("%d"), Data[i].g_angle);		// 角度 → 値ボックス
-		//	}
-
-		//}
-
-		sv_speed_r[1].Format(_T("%.2f"), (float)Data[1].speed / 1000);					//受信した値[速度]を格納
-		sv_angle_r[1].Format(_T("%.2f"), (float)Data[1].angle / 100);	//受信した値[角度]を格納
-		sv_load_r[1].Format(_T("%d"), Data[1].load);						//受信した値[負荷]を格納
-		sv_angle_rw[1] = Data[1].angle / 100;
-		
+		sv_speed_r[0].Format(_T("%.2f"), r_vel_m[0] / 1000);		//受信した値[速度]を格納
+		sv_angle_r[0].Format(_T("%.2f"), r_pos_m[0] / 100);			//受信した値[角度]を格納
+		sv_load_r[0].Format(_T("%.2f"), r_current_m[0]);			//受信した値[負荷]を格納
+		sv_angle_rw[0] = r_pos_m[0] / 100;
 		sv_angle_rw_v_all.Format(_T("%d"), sv_angle_rw_all);		// 角度→値ボックス
 		
-	
+		sv_speed_r[1].Format(_T("%.2f"), r_vel_m[1] / 1000);		//受信した値[速度]を格納
+		sv_angle_r[1].Format(_T("%.2f"), r_pos_m[1] / 100);			//受信した値[角度]を格納
+		sv_load_r[1].Format(_T("%.2f"), r_current_m[1]);			//受信した値[負荷]を格納
+		sv_angle_rw[1] = r_pos_m[1] / 100;
+		sv_angle_rw_v_all1.Format(_T("%d"), sv_angle_rw_all1);		// 角度→値ボックス
 
 
 		// 制御時間の表示
 		temp0001.Format(_T("処理時間: %d msec (%d /%d /%d)"), Processing_time, Processing_time1, Processing_time2, Processing_time3);
 
 		// ラジオボタンのいろいろ
-
 		UpdateData(FALSE);	//変数の値をスライダの位置・ボックスの値に反映
 
 	}
-
 	
 	CDialogEx::OnTimer(nIDEvent);
 	
 }
-
-
-
-
 
 void CROBOT_CTLDlg::OnBnClickedButtonCsv()
 {
@@ -745,18 +631,15 @@ void CROBOT_CTLDlg::OnBnClickedButtonCsv()
 
 		// タイトル出力
 		fprintf_s(csv_fp, "出力時間,");
-		for (i = 1; i < 3; i++) {
+		for (i = 0; i < 2; i++) {
 			//トルクオフなら取得値　オンなら指示角 g_angle	
-			fprintf_s(csv_fp, "目標角度(ID:%d),", i); // 目標角度
-			fprintf_s(csv_fp, "実測角度(ID:%d),", i);   // 実測角度
-			fprintf_s(csv_fp, "実測角速度(ID:%d),", i);   // 実測角速度
-			fprintf_s(csv_fp, "実測電流(ID:%d),", i);    // 実測電流
-			fprintf_s(csv_fp, "実測温度(ID:%d),", i); // 実測温度
-			fprintf_s(csv_fp, "エラー(ID:%d),", i);   // エラー
+			fprintf_s(csv_fp, "目標角度(axis:%d),", i); // 目標角度
+			fprintf_s(csv_fp, "実測角度(axis:%d),", i);   // 実測角度
+			fprintf_s(csv_fp, "実測角速度(axis:%d),", i);   // 実測角速度
+			fprintf_s(csv_fp, "実測電流(axis:%d),", i);    // 実測電流
 		}
 
 		fprintf_s(csv_fp, "\n");
-
 
 		flag_csv = 1;
 	}
@@ -770,7 +653,6 @@ void CROBOT_CTLDlg::OnBnClickedButtonCsv()
 	UpdateData(FALSE);
 
 }
-
 
 void thread_testmove(void) {
 
@@ -816,7 +698,6 @@ void thread_testmove(void) {
 
 }
 
-
 void thread_testmove2(void) {
 
 
@@ -832,28 +713,28 @@ void thread_testmove2(void) {
 	sv_ctl_f = 0;	// 本来の制御スレッドの終了
 	Sleep(1000);		// 1秒待つ
 
-	if (Futaba_RS.init(get_port, get_baud) != true) {		//	COMポート RS232Cの初期化
-											//	printf("ポート(%s)がオープン出来ませんでした。\n",OPN_COM);
-		while (1);
-	};
+	//if (Futaba_RS.init(get_port, get_baud) != true) {		//	COMポート RS232Cの初期化
+	//										//	printf("ポート(%s)がオープン出来ませんでした。\n",OPN_COM);
+	//	while (1);
+	//};
 
 
 	while (f_testmove2) {
 
 		// 現在位置からA
 		do_sv_angle_rw_all = pointA + (int)(((double)i / (double)timeAB) * (pointB - pointA));			// キャストのトラブル
-		for (i = 1; i < sv_count + 1; i++) {
-			if (sv_reverse_w[i] == TRUE) {	// リバースがオンの時
-				Data[i].g_angle = -(do_sv_angle_rw_all + sv_diff[i]);
-			}
-			else {							// リバースがオフの時
-				Data[i].g_angle = do_sv_angle_rw_all + sv_diff[i];
-			}
-			//全サーボ動作速度を[timeBA]msecに設定
-			Data[i].g_time = timeBA / 10;
-		}
+		//for (i = 1; i < sv_count + 1; i++) {
+		//	if (sv_reverse_w[i] == TRUE) {	// リバースがオンの時
+		//		Data[i].g_angle = -(do_sv_angle_rw_all + sv_diff[i]);
+		//	}
+		//	else {							// リバースがオフの時
+		//		Data[i].g_angle = do_sv_angle_rw_all + sv_diff[i];
+		//	}
+		//	//全サーボ動作速度を[timeBA]msecに設定
+		//	Data[i].g_time = timeBA / 10;
+		//}
 		// 全サーボに目標角度と目標速度を送信！
-		Futaba_RS.sv_move_long(Data);
+		//Futaba_RS.sv_move_long(Data);
 		Sleep(timeBA);
 
 
@@ -863,18 +744,18 @@ void thread_testmove2(void) {
 
 		// A地点からB
 		do_sv_angle_rw_all = temp_point + (int)(((double)i / (double)timeBA) * (pointA - temp_point));			// キャストのトラブル	
-		for (i = 1; i < sv_count + 1; i++) {
-			if (sv_reverse_w[i] == TRUE) {	// リバースがオンの時
-				Data[i].g_angle = -(do_sv_angle_rw_all + sv_diff[i]);
-			}
-			else {							// リバースがオフの時
-				Data[i].g_angle = do_sv_angle_rw_all + sv_diff[i];
-			}
-			//全サーボ動作速度を[timeBA]msecに設定
-			Data[i].g_time = timeAB / 10;
-		}
+		//for (i = 1; i < sv_count + 1; i++) {
+		//	if (sv_reverse_w[i] == TRUE) {	// リバースがオンの時
+		//		Data[i].g_angle = -(do_sv_angle_rw_all + sv_diff[i]);
+		//	}
+		//	else {							// リバースがオフの時
+		//		Data[i].g_angle = do_sv_angle_rw_all + sv_diff[i];
+		//	}
+		//	//全サーボ動作速度を[timeBA]msecに設定
+		//	Data[i].g_time = timeAB / 10;
+		//}
 		// 全サーボに目標角度と目標速度を送信！
-		Futaba_RS.sv_move_long(Data);
+		//Futaba_RS.sv_move_long(Data);
 		Sleep(timeAB);
 
 		// A地点で静止
@@ -886,12 +767,12 @@ void thread_testmove2(void) {
 	// B地点で静止
 
 	//全サーボ動作速度を0msecに設定
-	for (i = 0; i < 100; i++) {
-		Data[i].g_time = 0;
-	}
+	//for (i = 0; i < 100; i++) {
+	//	Data[i].g_time = 0;
+	//}
 
 
-	Futaba_RS.close();	// シリアルポートクローズ
+	//Futaba_RS.close();	// シリアルポートクローズ
 	Sleep(1000);
 
 	sv_ctl_f = 1;	// 本来の制御スレッドの終了
@@ -903,15 +784,11 @@ void thread_testmove2(void) {
 	handle = CreateThread(0, 0, (LPTHREAD_START_ROUTINE)thread_motor, NULL, 0, NULL);
 
 	// とりあえず全サーボトルクオフ
-	for (i = 1; i < 9; i++) {
-		sv_torque_w[i] = 0;
-	}
+	//for (i = 1; i < 9; i++) {
+	//	sv_torque_w[i] = 0;
+	//}
 
 }
-
-
-
-
 
 void CROBOT_CTLDlg::OnBnClickedPlay()
 {
@@ -925,22 +802,17 @@ void CROBOT_CTLDlg::OnBnClickedPlay()
 	////////////スレッドの生成
 	handle = CreateThread(0, 0, (LPTHREAD_START_ROUTINE)thread_testmove, NULL, 0, NULL);
 
-
-
 	test_play.EnableWindow(FALSE);
 	test_stop.EnableWindow(TRUE);
 	test_play2.EnableWindow(FALSE);
 
 	UpdateData(FALSE);
 
-
 }
-
 
 void CROBOT_CTLDlg::OnBnClickedStop()
 {
 	// TODO: ここにコントロール通知ハンドラー コードを追加します。
-	int i;
 
 	f_testmove = 0; 
 	f_testmove2 = 0;
@@ -949,11 +821,8 @@ void CROBOT_CTLDlg::OnBnClickedStop()
 	test_play2.EnableWindow(TRUE);
 	test_stop.EnableWindow(FALSE);
 
-
 	UpdateData(FALSE);
-
 }
-
 
 void CROBOT_CTLDlg::OnBnClickedPlay2()
 {
@@ -970,29 +839,22 @@ void CROBOT_CTLDlg::OnBnClickedPlay2()
 	test_play.EnableWindow(FALSE);
 	test_stop.EnableWindow(TRUE);
 	test_play2.EnableWindow(FALSE);
-
 }
-
 
 void CROBOT_CTLDlg::OnBnClickedButton4()
 {
 	// TODO: ここにコントロール通知ハンドラー コードを追加します。
-
 
 	if (ODrive.init(get_port, get_baud) != true) {		//	COMポート RS232Cの初期化
 												//	printf("ポート(%s)がオープン出来ませんでした。\n",OPN_COM);
 		while (1);
 	};
 
-
-
-	ODrive.ODriveINIT();
-
+	ODrive.ODriveINIT(0);
+	ODrive.ODriveINIT(1);
 
 	ODrive.close();	// シリアルポートクローズ
-
 }
-
 
 
 void CROBOT_CTLDlg::OnBnClickedWriteConf()
@@ -1006,16 +868,22 @@ void CROBOT_CTLDlg::OnBnClickedWriteConf()
 
 
 	UpdateData(TRUE);	// 値 <- GUI
-	
 
-	ODrive.Set_Vel_limit(0, atof(Vel_limit));
-	ODrive.Set_Current_lim(0, atof(Current_lim));
+	ODrive.Set_Vel_limit(0, atof(Vel_limit[0]));
+	ODrive.Set_Current_lim(0, atof(Current_lim[0]));
+	ODrive.Set_pos_gain(0, atof(Pos_gain[0]));
+	ODrive.Set_vel_gain(0, atof(Vel_gain[0]));
+	ODrive.Set_vel_integrator_gain(0, atof(Vel_integrator_gain[0]));
 
+	ODrive.Set_Vel_limit(1, atof(Vel_limit[1]));
+	ODrive.Set_Current_lim(1, atof(Current_lim[1]));
+	ODrive.Set_pos_gain(1, atof(Pos_gain[1]));
+	ODrive.Set_vel_gain(1, atof(Vel_gain[1]));
+	ODrive.Set_vel_integrator_gain(1, atof(Vel_integrator_gain[1]));
 
 	ODrive.close();	// シリアルポートクローズ
 
 }
-
 
 void CROBOT_CTLDlg::OnBnClickedSaveOdrive()
 {
@@ -1027,36 +895,78 @@ void CROBOT_CTLDlg::OnBnClickedSaveOdrive()
 		while (1);
 	};
 
-
 	ODrive.save_conf();
 
 	ODrive.close();	// シリアルポートクローズ
 
 }
 
-
-
-
 void CROBOT_CTLDlg::OnBnClickedButton3()
 {
 	// TODO: ここにコントロール通知ハンドラー コードを追加します。
 
 
-	float a = 0, b = 0;
+	float temp = 0;
 
 	if (ODrive.init(get_port, get_baud) != true) {		//	COMポート RS232Cの初期化
 											//	printf("ポート(%s)がオープン出来ませんでした。\n",OPN_COM);
 		while (1);
 	};
 
-	a = ODrive.Get_Vel_limit(0);
-	Vel_limit.Format(_T("%.2f"), a);
+	temp = ODrive.Get_Vel_limit(0);
+	Vel_limit[0].Format(_T("%.2f"), temp);
 
-	b = ODrive.Get_Current_lim(0);
-	Current_lim.Format(_T("%.2f"), b);
+	temp = ODrive.Get_Current_lim(0);
+	Current_lim[0].Format(_T("%.2f"), temp);
 
+	temp = ODrive.Get_pos_gain(0);
+	Pos_gain[0].Format(_T("%.2f"), temp);
+
+	temp = ODrive.Get_vel_gain(0);
+	Vel_gain[0].Format(_T("%.2f"), temp);
+
+	temp = ODrive.Get_integrator_gain(0);
+	Vel_integrator_gain[0].Format(_T("%.2f"), temp);
+
+
+	temp = ODrive.Get_Vel_limit(1);
+	Vel_limit[1].Format(_T("%.2f"), temp);
+
+	temp = ODrive.Get_Current_lim(1);
+	Current_lim[1].Format(_T("%.2f"), temp);
+
+	temp = ODrive.Get_pos_gain(1);
+	Pos_gain[1].Format(_T("%.2f"), temp);
+
+	temp = ODrive.Get_vel_gain(1);
+	Vel_gain[1].Format(_T("%.2f"), temp);
+
+	temp = ODrive.Get_integrator_gain(1);
+	Vel_integrator_gain[1].Format(_T("%.2f"), temp);
 
 	UpdateData(FALSE);	// 値→GUI
 
 	ODrive.close();	// シリアルポートクローズ
+}
+
+
+void CROBOT_CTLDlg::OnBnClickedButton2()
+{
+	// TODO: ここにコントロール通知ハンドラー コードを追加します。
+
+	sv_angle_rw_all = 0;
+
+	UpdateData(FALSE);	// 値→GUI
+
+}
+
+
+void CROBOT_CTLDlg::OnBnClickedButton20()
+{
+	// TODO: ここにコントロール通知ハンドラー コードを追加します。
+
+
+	sv_angle_rw_all1 = 0;
+
+	UpdateData(FALSE);	// 値→GUI
 }

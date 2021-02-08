@@ -7,7 +7,6 @@
 
 #define COM_PORT		(char *)"COM1"	// 通信ポートの指定
 
-int sjlen(const char* str);
 
 static const int kMotorOffsetFloat = 2;
 static const int kMotorStrideFloat = 28;
@@ -72,6 +71,60 @@ void ODriveArduino::SetCurrent(int motor_number, float current) {
 
 }
 
+// ----------------------------------------------------------- SET系オリジナル
+
+void ODriveArduino::Set_Vel_limit(int motor_number, float Vel_limit) {
+
+	char sendbuf[100];
+
+	memset(sendbuf, 0x00, sizeof(sendbuf));	// 読み込みバッファクリア
+	sprintf_s(sendbuf, "w axis%d.controller.config.vel_limit %f\n", motor_number,Vel_limit);
+	send((char*)sendbuf, sjlen((char*)sendbuf));
+	return;
+}
+
+void ODriveArduino::Set_pos_gain(int motor_number, float pos_gain) {
+
+	char sendbuf[100];
+
+	memset(sendbuf, 0x00, sizeof(sendbuf));	// 読み込みバッファクリア
+	sprintf_s(sendbuf, "w axis%d.controller.config.pos_gain %f\n", motor_number, pos_gain);
+	send((char*)sendbuf, sjlen((char*)sendbuf));
+	return;
+}
+
+void ODriveArduino::Set_vel_gain(int motor_number, float vel_gain) {
+
+	char sendbuf[100];
+
+	memset(sendbuf, 0x00, sizeof(sendbuf));	// 読み込みバッファクリア
+	sprintf_s(sendbuf, "w axis%d.controller.config.vel_gain %f\n", motor_number, vel_gain);
+	send((char*)sendbuf, sjlen((char*)sendbuf));
+	return;
+}
+
+void ODriveArduino::Set_vel_integrator_gain(int motor_number, float vel_integrator_gain) {
+
+	char sendbuf[100];
+
+	memset(sendbuf, 0x00, sizeof(sendbuf));	// 読み込みバッファクリア
+	sprintf_s(sendbuf, "w axis%d.controller.config.vel_integrator_gain %f\n", motor_number, vel_integrator_gain);
+	send((char*)sendbuf, sjlen((char*)sendbuf));
+	return;
+}
+
+void ODriveArduino::Set_Current_lim(int motor_number, float Current_lim) {
+
+	char sendbuf[100];
+
+	memset(sendbuf, 0x00, sizeof(sendbuf));	// 読み込みバッファクリア
+	sprintf_s(sendbuf, "w axis%d.motor.config.current_li %f\n", motor_number,Current_lim);
+	send((char*)sendbuf, sjlen((char*)sendbuf));
+	return;
+}
+
+// ----------------------------------------------------------- TrapezoidalMove
+
 void ODriveArduino::TrapezoidalMove(int motor_number, float position){
 
 	char sendbuf[100];
@@ -83,59 +136,7 @@ void ODriveArduino::TrapezoidalMove(int motor_number, float position){
 	send((char*)sendbuf, sjlen((char*)sendbuf));
 }
 
-void ODriveArduino::reset() {
-	// ODriveの初期化
-
-	char sendbuf[100];
-	// 送信バッファクリア
-	memset(sendbuf, 0x00, sizeof(sendbuf));
-
-	sprintf_s(sendbuf, "sr\n");
-	send((char*)sendbuf, sjlen((char*)sendbuf));
-}
-
-void ODriveArduino::save_conf() {
-	// ODriveの初期化
-
-	char sendbuf[100];
-	// 送信バッファクリア
-	memset(sendbuf, 0x00, sizeof(sendbuf));
-
-	sprintf_s(sendbuf, "ss\n");
-	send((char*)sendbuf, sjlen((char*)sendbuf));
-}
-
-void ODriveArduino::ODriveINIT() {
-
-	char sendbuf[100];
-	int requested_state;
-	
-	memset(sendbuf, 0x00, sizeof(sendbuf));	// 読み込みバッファクリア
-	sprintf_s(sendbuf, "w axis0.controller.config.vel_limit %f\n", 1000.0f);
-	send((char*)sendbuf, sjlen((char*)sendbuf));
-
-	memset(sendbuf, 0x00, sizeof(sendbuf));	// 読み込みバッファクリア
-	sprintf_s(sendbuf, "w axis0.motor.config.current_lim %f\n", 11.0f);
-	send((char*)sendbuf, sjlen((char*)sendbuf));
-
-	//memset(sendbuf, 0x00, sizeof(sendbuf));	// 読み込みバッファクリア
-	//sprintf_s(sendbuf, "w axis1.controller.config.vel_limit %f\n", 1000.0f);
-	//send((char*)sendbuf, sjlen((char*)sendbuf));
-
-	//memset(sendbuf, 0x00, sizeof(sendbuf));	// 読み込みバッファクリア
-	//sprintf_s(sendbuf, "w axis1.motor.config.current_lim %f\n", 11.0f);
-	//send((char*)sendbuf, sjlen((char*)sendbuf));
-
-	requested_state = AXIS_STATE_MOTOR_CALIBRATION;
-	if (!run_state(0, requested_state, true)) return;
-
-	requested_state = AXIS_STATE_ENCODER_OFFSET_CALIBRATION;
-	if (!run_state(0, requested_state, true, 25.0f)) return;
-
-	requested_state = AXIS_STATE_CLOSED_LOOP_CONTROL;
-	if (!run_state(0, requested_state, false /*don't wait*/)) return;
-}
-
+// ----------------------------------------------------------- GET系
 
 float ODriveArduino::Get_Vel_limit(int motor_number) {
 
@@ -148,7 +149,38 @@ float ODriveArduino::Get_Vel_limit(int motor_number) {
 	return readFloat();
 }
 
+float ODriveArduino::Get_pos_gain(int motor_number) {
 
+	char sendbuf[200];
+	// 送信バッファクリア
+	memset(sendbuf, 0x00, sizeof(sendbuf));
+	sprintf_s(sendbuf, "r axis%d.controller.config.pos_gain\n", motor_number);
+	send((char*)sendbuf, sjlen((char*)sendbuf));
+
+	return readFloat();
+}
+
+float ODriveArduino::Get_vel_gain(int motor_number) {
+
+	char sendbuf[200];
+	// 送信バッファクリア
+	memset(sendbuf, 0x00, sizeof(sendbuf));
+	sprintf_s(sendbuf, "r axis%d.controller.config.vel_gain\n", motor_number);
+	send((char*)sendbuf, sjlen((char*)sendbuf));
+
+	return readFloat();
+}
+
+float ODriveArduino::Get_integrator_gain(int motor_number) {
+
+	char sendbuf[200];
+	// 送信バッファクリア
+	memset(sendbuf, 0x00, sizeof(sendbuf));
+	sprintf_s(sendbuf, "r axis%d.controller.config.vel_integrator_gain\n", motor_number);
+	send((char*)sendbuf, sjlen((char*)sendbuf));
+
+	return readFloat();
+}
 
 float ODriveArduino::Get_Current_lim(int motor_number) {
 
@@ -159,35 +191,6 @@ float ODriveArduino::Get_Current_lim(int motor_number) {
 	send((char*)sendbuf, sjlen((char*)sendbuf));
 
 	return readFloat();
-}
-
-
-void ODriveArduino::Set_Vel_limit(int motor_number, float Vel_limit) {
-
-	char sendbuf[100];
-
-	memset(sendbuf, 0x00, sizeof(sendbuf));	// 読み込みバッファクリア
-	sprintf_s(sendbuf, "w axis0.controller.config.vel_limit %f\n", Vel_limit);
-	send((char*)sendbuf, sjlen((char*)sendbuf));
-	return;
-}
-
-
-void ODriveArduino::Set_Current_lim(int motor_number, float Current_lim) {
-
-	char sendbuf[100];
-
-	memset(sendbuf, 0x00, sizeof(sendbuf));	// 読み込みバッファクリア
-	sprintf_s(sendbuf, "w axis0.motor.config.current_li %f\n", Current_lim);
-	send((char*)sendbuf, sjlen((char*)sendbuf));
-	return;
-}
-
-
-
-float ODriveArduino::readFloat(void) {
-	//return readString().toFloat();
-	return atof(readString());  
 }
 
 float ODriveArduino::GetVelocity(int motor_number){
@@ -226,66 +229,137 @@ float ODriveArduino::GetCurrent(int motor_number) {
 	return readFloat();
 }
 
+// --------------------------------------------------------------------------------------
+
+void ODriveArduino::reset() {
+	// ODriveの初期化
+
+	char sendbuf[100];
+	// 送信バッファクリア
+	memset(sendbuf, 0x00, sizeof(sendbuf));
+
+	sprintf_s(sendbuf, "sr\n");
+	send((char*)sendbuf, sjlen((char*)sendbuf));
+}
+
+void ODriveArduino::save_conf() {
+	// ODriveの初期化
+
+	char sendbuf[100];
+	// 送信バッファクリア
+	memset(sendbuf, 0x00, sizeof(sendbuf));
+
+	sprintf_s(sendbuf, "ss\n");
+	send((char*)sendbuf, sjlen((char*)sendbuf));
+}
+
+void ODriveArduino::ODriveINIT(int axis) {
+
+	char sendbuf[100];
+	int requested_state;
+
+	//memset(sendbuf, 0x00, sizeof(sendbuf));	// 読み込みバッファクリア
+	//sprintf_s(sendbuf, "w axis0.controller.config.vel_limit %f\n", 1000.0f);
+	//send((char*)sendbuf, sjlen((char*)sendbuf));
+
+	//memset(sendbuf, 0x00, sizeof(sendbuf));	// 読み込みバッファクリア
+	//sprintf_s(sendbuf, "w axis0.motor.config.current_lim %f\n", 11.0f);
+	//send((char*)sendbuf, sjlen((char*)sendbuf));
+
+	//memset(sendbuf, 0x00, sizeof(sendbuf));	// 読み込みバッファクリア
+	//sprintf_s(sendbuf, "w axis1.controller.config.vel_limit %f\n", 1000.0f);
+	//send((char*)sendbuf, sjlen((char*)sendbuf));
+
+	//memset(sendbuf, 0x00, sizeof(sendbuf));	// 読み込みバッファクリア
+	//sprintf_s(sendbuf, "w axis1.motor.config.current_lim %f\n", 11.0f);
+	//send((char*)sendbuf, sjlen((char*)sendbuf));
+
+	requested_state = AXIS_STATE_MOTOR_CALIBRATION;
+	if (!run_state(axis, requested_state, true)) return;
+
+	requested_state = AXIS_STATE_ENCODER_OFFSET_CALIBRATION;
+	if (!run_state(axis, requested_state, true, 25.0f)) return;
+
+	requested_state = AXIS_STATE_CLOSED_LOOP_CONTROL;
+	if (!run_state(axis, requested_state, false /*don't wait*/)) return;
+}
+
+
+
+// ----------------------------------------------------------------------------------------
+
+bool ODriveArduino::run_state(int axis, int requested_state, bool wait_for_idle, float timeout) {
+
+	char sendbuf[100];
+	int timeout_ctr = (int)(timeout * 10.0f);
+
+
+	// 送信バッファクリア
+	memset(sendbuf, 0x00, sizeof(sendbuf));
+	//serial_ << "w axis" << axis << ".requested_state " << requested_state << '\n';
+	sprintf_s(sendbuf, "w axis%d.requested_state %d\n", axis, requested_state);
+	send((char*)sendbuf, sjlen((char*)sendbuf));
+
+	if (wait_for_idle) {
+		do {
+			//delay(100);
+			Sleep(100);
+			// 送信バッファクリア
+			memset(sendbuf, 0x00, sizeof(sendbuf));
+			//serial_ << "r axis" << axis << ".current_state\n";
+			sprintf_s(sendbuf, "r axis%d.current_state\n", axis);
+			send((char*)sendbuf, sjlen((char*)sendbuf));
+
+		} while (readInt() != AXIS_STATE_IDLE && --timeout_ctr > 0);
+	}
+
+	return timeout_ctr > 0;
+}
+
+float ODriveArduino::readFloat(void) {
+	//return readString().toFloat();
+	return atof(readString());
+}
+
 int ODriveArduino::readInt() {
     //return readString().toInt();
 	return atoi(readString());
 }
 
-bool ODriveArduino::run_state(int axis, int requested_state, bool wait_for_idle, float timeout) {
-	
-	char sendbuf[100];
-	int timeout_ctr = (int)(timeout * 10.0f);
-
-
-
-	// 送信バッファクリア
-	memset(sendbuf, 0x00, sizeof(sendbuf));
-    //serial_ << "w axis" << axis << ".requested_state " << requested_state << '\n';
-	sprintf_s(sendbuf, "w axis%d.requested_state %d\n", axis,requested_state);
-	send((char*)sendbuf, sjlen((char*)sendbuf));
-
-    if (wait_for_idle) {
-        do {
-            //delay(100);
-			Sleep(100);
-			// 送信バッファクリア
-			memset(sendbuf, 0x00, sizeof(sendbuf));
-            //serial_ << "r axis" << axis << ".current_state\n";
-			sprintf_s(sendbuf, "r axis%d.current_state\n", axis);
-			send((char*)sendbuf, sjlen((char*)sendbuf));
-
-        } while (readInt() != AXIS_STATE_IDLE && --timeout_ctr > 0);
-    }
-
-    return timeout_ctr > 0;
-}
-
 CString ODriveArduino::readString() {
     CString str = "";
 	char cbuf;
+
+	int receive_try = 0;
 	
 	//static const unsigned long timeout = 1000;
     //unsigned long timeout_start = millis();
-    for (;;) {
-    //    while (!serial_.available()) {
-    //        if (millis() - timeout_start >= timeout) {
-    //            return str;
-    //        }
-    //    }
-		receive(&cbuf, 1);
-        if (cbuf == '\n')
-            break;
-        str += cbuf;
-    }
-    
+	for (;;) {
+		//    while (!serial_.available()) {
+		//        if (millis() - timeout_start >= timeout) {
+		//            return str;
+		//        }
+		//    }
 
-	
+		// 255バイト以上受信するか、受信トライして\nが来なければおそらく受信失敗(特にタイムアウト)
+		receive_try++;
+		if (receive_try > 255) return "ERR";
+
+
+		//recieveの戻り値は受信したバイト数 (タイムアウトもある)
+		if (receive(&cbuf, 1) == 1) {
+			if (cbuf == '\n')
+				break;
+			str += cbuf;
+		}
+
+    }
+
 	return str;
 }
 
-
-
 //---------------------------------------------------------------------------
+
 bool ODriveArduino::init(char* comport_in, int baudrate)
 {
 	bool flag = true;
@@ -449,8 +523,7 @@ int ODriveArduino::CommClose()
 	return 1;
 }
 
-
-int sjlen(const char* str)
+int ODriveArduino::sjlen(const char* str)
 {
 	int count = 0;  // 文字数のカウント用
 	int skip = 0;  // skip=1の場合は文字カウントをスキップする

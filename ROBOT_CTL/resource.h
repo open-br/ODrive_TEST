@@ -17,7 +17,6 @@
 #define IDC_BUTTON1                     1006
 #define IDC_BUTTON2                     1007
 #define IDC_READ_CONF                   1007
-#define IDC_R_CONF                      1007
 #define IDC_BUTTON16                    1008
 #define IDC_BUTTON_DIFF                 1008
 #define IDC_WRITE_CONF                  1008
@@ -27,6 +26,7 @@
 #define IDC_SV_CLOSE                    1011
 #define IDC_BUTTON19                    1012
 #define IDC_SAVE_ODRIVE                 1012
+#define IDC_BUTTON20                    1013
 #define IDC_EDIT5                       1014
 #define IDC_BUTTON6                     1015
 #define IDC_BUTTON7                     1016
@@ -35,18 +35,23 @@
 #define IDC_BUTTON10                    1019
 #define IDC_BUTTON18                    1020
 #define IDC_ANGLE_SL61                  1021
+#define IDC_ANGLE_SL00                  1021
 #define IDC_ANGLE_61                    1022
+#define IDC_ANGLE_00                    1022
 #define IDC_ANGLE_SL71                  1023
 #define IDC_ANGLE_SALL                  1023
 #define IDC_ANGLE_71                    1024
 #define IDC_ANGLE_SALL2                 1024
+#define IDC_ANGLE_SALL1                 1024
 #define IDC_ANGLE_V61                   1025
 #define IDC_CHK_TORQUE_61               1026
 #define IDC_ANGLE_V71                   1027
 #define IDC_ANGLE_VALL                  1027
 #define IDC_ANGLE_SL62                  1028
+#define IDC_ANGLE_SL01                  1028
 #define IDC_CHK_TORQUE_71               1029
 #define IDC_ANGLE_VALL2                 1029
+#define IDC_ANGLE_VALL1                 1029
 #define IDC_ANGLE_SL72                  1030
 #define IDC_CHK_REVERSE_61              1030
 #define IDC_ANGLE_91                    1031
@@ -153,6 +158,7 @@
 #define IDC_EDIT8                       1128
 #define IDC_saisei_kaishi               1128
 #define IDC_vel_lim                     1128
+#define IDC_vel_lim1                    1129
 #define IDC_MFCLINK1                    1135
 #define IDC_BUTTON15                    1137
 #define IDC_BUTTON_OK                   1145
@@ -162,12 +168,21 @@
 #define IDC_EDIT9                       1157
 #define IDC_current_lim                 1157
 #define IDC_ANGLE_V91                   1158
+#define IDC_current_lim1                1158
 #define IDC_CHK_TORQUE_91               1159
 #define IDC_EDIT11                      1159
+#define IDC_CHECK00                     1159
+#define IDC_CHECK01                     1160
 #define IDC_ANGLE_SL92                  1161
+#define IDC_pos_gain                    1161
+#define IDC_vel_gain                    1163
+#define IDC_vel_integrator_gain         1164
 #define IDC_ANGLE_V92                   1165
 #define IDC_CHK_TORQUE_92               1166
 #define IDC_ANGLE_SL93                  1168
+#define IDC_pos_gain1                   1168
+#define IDC_vel_gain1                   1169
+#define IDC_vel_integrator_gain1        1170
 #define IDC_ANGLE_V93                   1172
 #define IDC_CHK_TORQUE_93               1173
 #define IDC_ANGLE_SL81                  1175
@@ -181,12 +196,17 @@
 #define IDC_CHK_TORQUE_83               1194
 #define IDC_TIME_61                     1199
 #define IDC_SPEED_61                    1200
+#define IDC_SPEED_00                    1200
 #define IDC_LOAD_61                     1201
+#define IDC_LOAD_00                     1201
 #define IDC_TEMP_61                     1202
 #define IDC_ANGLE_62                    1203
+#define IDC_ANGLE_01                    1203
 #define IDC_TIME_62                     1204
 #define IDC_SPEED_62                    1205
+#define IDC_SPEED_01                    1205
 #define IDC_LOAD_62                     1206
+#define IDC_LOAD_01                     1206
 #define IDC_TEMP_62                     1207
 #define IDC_ANGLE_63                    1208
 #define IDC_TIME_63                     1209
@@ -313,7 +333,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        138
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1158
+#define _APS_NEXT_CONTROL_VALUE         1167
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
