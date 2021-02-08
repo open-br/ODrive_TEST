@@ -56,11 +56,13 @@ public:
 	afx_msg void OnBnClickedButtonCsv();
 	afx_msg void OnBnClickedPlay();
 	afx_msg void OnBnClickedStop();
-	afx_msg void OnBnClickedPlay2();
+	//afx_msg void OnBnClickedPlay2();
 	afx_msg void OnBnClickedButton4();
 	afx_msg void OnBnClickedWriteConf();
 	afx_msg void OnBnClickedSaveOdrive();
 	afx_msg void OnBnClickedButton3();
+	afx_msg void OnBnClickedButton2();
+	afx_msg void OnBnClickedButton20();
 
 	// シリアルポート関連
 	CEdit com_num;
@@ -68,16 +70,19 @@ public:
 	CString com_baudrate;
 	CString com_openclode;
 
-	// 受信パラメータ(のテキスト表示用)
-	CString sv_angle_r[2];
+	// 目標角度
+	CString goal_angle_str[2];
+	CSliderCtrl goal_angle_ctl[2];
+
+	// 受信パラメータ(テキスト表示とスライダ用)
 	CString sv_speed_r[2];
 	CString sv_load_r[2];
+	CString sv_angle_r[2];
+	int sv_angle_rw[2];
+	CSliderCtrl sv_angle_sl_ctl[2];
 
-
-	CBitmap m_bmp;  // 表示するビットマップ
-
-
-
+	// 表示するビットマップ
+	CBitmap m_bmp;  
 
 	// ODriveのパラメータ設定用
 	CString Current_lim[2];
@@ -87,29 +92,18 @@ public:
 	CString Vel_integrator_gain[2];
 
 
-	int sv_angle_rw[2];
-	CString sv_angle_rw_v[2];
 
-
-
-	CString sv_angle_rw_v_all;
-	CString sv_angle_rw_v_all1;
-
-	CSliderCtrl sv_angle_sl_ctl[2];
-	CSliderCtrl sv_angle_sl_ctl_all;
-	CSliderCtrl sv_angle_sl_ctl_all1;
-
-
+	// ボタン関連
 	CButton sv_opne_ctlf;
 	CButton sv_close_ctlf;
 	CButton sv_csv_cap;
-
 	CButton test_play;
-	CButton test_play2;
+	//CButton test_play2;
 	CButton test_stop;
 
+	// 実行時間表示
 	CString temp0001;
-	int flip_radio;
+
 
 
 
@@ -127,6 +121,4 @@ public:
 
 	int saisei_kaishi;
 
-	afx_msg void OnBnClickedButton2();
-	afx_msg void OnBnClickedButton20();
 };
