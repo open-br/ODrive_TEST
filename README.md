@@ -19,7 +19,7 @@ VIsual C++ /MFC 2019の環境で作成されています。
 
 ## リンク
 
-- [Dream Drive!!](https://y-giken.xrea.jp/)
+- [Dream Drive!!](https://dream-drive.net/)
 - [勇者技術研究所](https://y-giken.xrea.jp/)
 - [ODrive](https://odriverobotics.com/)
 - [ODrive github](https://github.com/odriverobotics/ODrive/)
