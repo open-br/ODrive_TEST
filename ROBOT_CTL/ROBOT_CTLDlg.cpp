@@ -58,6 +58,7 @@ int goal_angle[2] = {0,0};
 // チェックボックス
 BOOL chk_axis[2] = {FALSE,FALSE };
 
+// 負荷テストのパラメータ
 int pointA;
 int pointB;
 int timeAB;
@@ -65,14 +66,13 @@ int timeBA;
 int time_A;
 int time_B;
 
-int f_testmove = 0;
-int f_testmove_do = 0;
-int f_testmove2 = 0;
+// 負荷テストの動作に使うフラグ
+int f_testmove = 0;			// テスト動作開始フラグ
+int f_testmove_do = 0;		// テスト動作実行中フラグ
 
 // 関数
-void thread_motor(void);	// サーボ制御用スレッド
+void thread_motor(void);		// サーボ制御用スレッド
 void thread_testmove(void);	    // テスト動作用スレッド
-//void thread_testmove2(void);	    // テスト動作用スレッド
 
 // アプリケーションのバージョン情報に使われる CAboutDlg ダイアログ
 class CAboutDlg : public CDialogEx
@@ -117,11 +117,6 @@ CROBOT_CTLDlg::CROBOT_CTLDlg(CWnd* pParent /*=NULL*/)
 	, com_baudrate(_T(""))
 	, com_openclode(_T(""))
 	, temp0001(_T(""))
-	, csvlist(_T(""))
-	, current_filename(_T(""))
-	, select_move(_T(""))
-	, motion_file_select(_T(""))
-	, motion_name(_T(""))
 
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
@@ -171,7 +166,7 @@ void CROBOT_CTLDlg::DoDataExchange(CDataExchange* pDX)
 	// 位置制御 送信用 axis1
 	DDX_Text(pDX, IDC_ANGLE_VALL1, goal_angle_str[1]);			// 角度の値(数値表示(文字))
 	DDX_Slider(pDX, IDC_ANGLE_SALL1, goal_angle[1]);			// スライダの値
-	DDX_Control(pDX, IDC_ANGLE_SALL1, goal_angle_ctl[1]);	// スライダのコントローラー(上限・下限の設定用)
+	DDX_Control(pDX, IDC_ANGLE_SALL1, goal_angle_ctl[1]);		// スライダのコントローラー(上限・下限の設定用)
 
 	// CSV出力ボタン
 	DDX_Control(pDX, IDC_BUTTON_CSV, sv_csv_cap);
@@ -190,10 +185,11 @@ void CROBOT_CTLDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_vel_gain1, Vel_gain[1]);
 	DDX_Text(pDX, IDC_vel_integrator_gain1, Vel_integrator_gain[1]);
 
+	// 負荷テスト開始・停止ボタンコントロール
 	DDX_Control(pDX, IDC_PLAY, test_play);
-	//DDX_Control(pDX, IDC_PLAY2, test_play2);
 	DDX_Control(pDX, IDC_STOP, test_stop);
 
+	// 負荷テストパラメーター
 	DDX_Text(pDX, IDC_pointA, pointA);
 	DDX_Text(pDX, IDC_pointB, pointB);
 	DDX_Text(pDX, IDC_time_A, time_A);
@@ -201,6 +197,7 @@ void CROBOT_CTLDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_timeAB, timeAB);
 	DDX_Text(pDX, IDC_timeBA, timeBA);
 
+	// axis0,1使用チェック
 	DDX_Check(pDX, IDC_CHECK00, chk_axis[0]);
 	DDX_Check(pDX, IDC_CHECK01, chk_axis[1]);
 
@@ -295,7 +292,7 @@ BOOL CROBOT_CTLDlg::OnInitDialog()
 
 	// A-B 試験 基本パラメータ
 	pointA = 0;
-	pointB = 200;
+	pointB = 20;
 	time_A = 500;
 	time_B = 500;
 	timeAB = 500;
@@ -515,16 +512,16 @@ void thread_motor(void)
 		
 		// ODriveパラメータ取得(axis0)
 		if (chk_axis[0]){
-			r_vel_m[0] = ODrive.GetVelocity(0) * 1000;
-			r_pos_m[0] = ODrive.GetPosition(0) * 360.0f;
-			r_current_m[0] = ODrive.GetCurrent(0) * 1000;
+			r_vel_m[0] = ODrive.GetVelocity(0);
+			r_pos_m[0] = ODrive.GetPosition(0);
+			r_current_m[0] = ODrive.GetCurrent(0);
 		}
 
 		// ODriveパラメータ取得(axis1)
 		if (chk_axis[1]) {
-			r_vel_m[1] = ODrive.GetVelocity(1) * 1000;
-			r_pos_m[1] = ODrive.GetPosition(1) * 360.0f;
-			r_current_m[1] = ODrive.GetCurrent(1) * 1000;
+			r_vel_m[1] = ODrive.GetVelocity(1);
+			r_pos_m[1] = ODrive.GetPosition(1);
+			r_current_m[1] = ODrive.GetCurrent(1);
 		}
 
 		// 時間計測
@@ -556,10 +553,10 @@ void thread_motor(void)
 
 			for (i = 0; i < 2; i++) {
 				//トルクオフなら取得値　オンなら指示角 g_angle	
-				fprintf_s(csv_fp, "%f,", pos_m[i]); // 目標角度
-				fprintf_s(csv_fp, "%f,", r_pos_m[i]);   // 実測角度
-				fprintf_s(csv_fp, "%f,", r_vel_m[i]);   // 実測角速度
-				fprintf_s(csv_fp, "%f,", r_current_m[i]);    // 実測電流
+				fprintf_s(csv_fp, "%f,", pos_m[i] * 3.6f); // 目標角度
+				fprintf_s(csv_fp, "%f,", r_pos_m[i] * 3.6f);   // 実測角度
+				fprintf_s(csv_fp, "%f,", r_vel_m[i] * 3.6f);   // 実測角速度
+				fprintf_s(csv_fp, "%f,", r_current_m[i] * 3.6f);    // 実測電流
 			}
 			fprintf_s(csv_fp, "\n");
 		}
@@ -581,17 +578,17 @@ void CROBOT_CTLDlg::OnTimer(UINT_PTR nIDEvent)
 
 		if (f_testmove_do == 0) UpdateData(TRUE);		// スライダの位置・ボックスの値を変数に代入 (再生中でなければ)
 
-		sv_speed_r[0].Format(_T("%.2f"), r_vel_m[0] / 1000);		//受信した値[速度]を格納
-		sv_angle_r[0].Format(_T("%.2f"), r_pos_m[0] / 100);			//受信した値[角度]を格納
-		sv_angle_rw[0] = r_pos_m[0] / 100;
-		sv_load_r[0].Format(_T("%.2f"), r_current_m[0]);			//受信した値[負荷]を格納
+		sv_speed_r[0].Format(_T("%.1f"), r_vel_m[0] * 3.6f);			//受信した値[速度]を格納 (減速後のdeg/sに変換)
+		sv_angle_r[0].Format(_T("%.1f"), r_pos_m[0] * 3.6f);			//受信した値[角度]を格納 (減速後のdegに変換)
+		sv_angle_rw[0] = r_pos_m[0] * 3.6f;
+		sv_load_r[0].Format(_T("%.0f"), r_current_m[0] * 1000);			//受信した値[負荷]を格納 (mAに変換)
 
 		goal_angle_str[0].Format(_T("%.1f"), goal_angle[0]/10.0f);			// 角度→値ボックス
 		
-		sv_speed_r[1].Format(_T("%.2f"), r_vel_m[1] / 1000);		//受信した値[速度]を格納
-		sv_angle_r[1].Format(_T("%.2f"), r_pos_m[1] / 100);			//受信した値[角度]を格納
-		sv_angle_rw[1] = r_pos_m[1] / 100;
-		sv_load_r[1].Format(_T("%.2f"), r_current_m[1]);			//受信した値[負荷]を格納
+		sv_speed_r[1].Format(_T("%.1f"), r_vel_m[1] * 3.6f);			//受信した値[速度]を格納 (減速後のdeg/sに変換)
+		sv_angle_r[1].Format(_T("%.1f"), r_pos_m[1] * 3.6f);			//受信した値[角度]を格納 (減速後のdegに変換)
+		sv_angle_rw[1] = r_pos_m[1] * 3.6f;
+		sv_load_r[1].Format(_T("%.0f"), r_current_m[1] * 1000);			//受信した値[負荷]を格納 (mAに変換)
 						
 		goal_angle_str[1].Format(_T("%.1f"), goal_angle[1]/10.0f);			// 角度→値ボックス
 
@@ -631,10 +628,10 @@ void CROBOT_CTLDlg::OnBnClickedButtonCsv()
 		fprintf_s(csv_fp, "出力時間,");
 		for (i = 0; i < 2; i++) {
 			//トルクオフなら取得値　オンなら指示角 g_angle	
-			fprintf_s(csv_fp, "目標角度(axis:%d),", i); // 目標角度
-			fprintf_s(csv_fp, "実測角度(axis:%d),", i);   // 実測角度
-			fprintf_s(csv_fp, "実測角速度(axis:%d),", i);   // 実測角速度
-			fprintf_s(csv_fp, "実測電流(axis:%d),", i);    // 実測電流
+			fprintf_s(csv_fp, "目標角度(deg)[axis:%d],", i); // 目標角度
+			fprintf_s(csv_fp, "実測角度(deg)[axis:%d],", i);   // 実測角度
+			fprintf_s(csv_fp, "実測角速度(deg/s)[axis:%d],", i);   // 実測角速度
+			fprintf_s(csv_fp, "実測電流(mA)[axis:%d],", i);    // 実測電流
 		}
 
 		fprintf_s(csv_fp, "\n");
@@ -654,12 +651,12 @@ void CROBOT_CTLDlg::OnBnClickedButtonCsv()
 
 void thread_testmove(void) {
 
-
 	// 現在位置→A→B→A→
 
 	int i;
 	int temp_point;
 
+	// テスト動作実行中フラグ
 	f_testmove_do = 1;
 
 	temp_point = goal_angle[0];	// 現在地を保存
@@ -670,7 +667,7 @@ void thread_testmove(void) {
 
 		// 現在位置からA
 		for (i = 0; i <= (timeBA/10); i++) {
-			goal_angle[0] = temp_point + (int)(((double)i / (double)(timeBA / 10)) * (pointA - temp_point));			// キャストのトラブル
+			goal_angle[0] = temp_point + (int)(((double)i / (double)(timeBA / 10)) * ((pointA*10) - temp_point));			// キャストのトラブル
 			Sleep(10);	// 10ミリ秒
 		}
 
@@ -679,21 +676,22 @@ void thread_testmove(void) {
 
 		// A地点からB
 		for (i = 0; i <= (timeAB/10); i++) {
-			goal_angle[0] = pointA + (int)(((double)i / (double)(timeAB / 10)) * (pointB - pointA));			// キャストのトラブル
+			goal_angle[0] = (pointA * 10) + (int)(((double)i / (double)(timeAB / 10)) * ((pointB * 10) - (pointA * 10)));			// キャストのトラブル
 			Sleep(10);	// 10ミリ秒
 		}
 
 		// A地点で静止
 		Sleep(time_A);
 
-		temp_point = pointB;	// 現在地にBを保存
+		temp_point = (pointB * 10);	// 現在地にBを保存
 
 	}
 
 	timeEndPeriod(1);// タイマーの最小精度を戻す
 	// B地点で静止
-	f_testmove_do = 0;
 
+	// テスト動作実行中フラグ
+	f_testmove_do = 0;
 }
 
 void CROBOT_CTLDlg::OnBnClickedPlay()
@@ -710,7 +708,6 @@ void CROBOT_CTLDlg::OnBnClickedPlay()
 
 	test_play.EnableWindow(FALSE);
 	test_stop.EnableWindow(TRUE);
-	//test_play2.EnableWindow(FALSE);
 
 	UpdateData(FALSE);
 
@@ -721,10 +718,8 @@ void CROBOT_CTLDlg::OnBnClickedStop()
 	// TODO: ここにコントロール通知ハンドラー コードを追加します。
 
 	f_testmove = 0; 
-	f_testmove2 = 0;
 
 	test_play.EnableWindow(TRUE);
-	//test_play2.EnableWindow(TRUE);
 	test_stop.EnableWindow(FALSE);
 
 	UpdateData(FALSE);

@@ -6,11 +6,7 @@
 #include "afxwin.h"
 #include "afxcmn.h"
 
-
-
-
 class CROBOT_CTLDlgAutoProxy;
-
 
 // CROBOT_CTLDlg ダイアログ
 class CROBOT_CTLDlg : public CDialogEx
@@ -56,7 +52,6 @@ public:
 	afx_msg void OnBnClickedButtonCsv();
 	afx_msg void OnBnClickedPlay();
 	afx_msg void OnBnClickedStop();
-	//afx_msg void OnBnClickedPlay2();
 	afx_msg void OnBnClickedButton4();
 	afx_msg void OnBnClickedWriteConf();
 	afx_msg void OnBnClickedSaveOdrive();
@@ -91,8 +86,6 @@ public:
 	CString Vel_gain[2];
 	CString Vel_integrator_gain[2];
 
-
-
 	// ボタン関連
 	CButton sv_opne_ctlf;
 	CButton sv_close_ctlf;
@@ -103,22 +96,5 @@ public:
 
 	// 実行時間表示
 	CString temp0001;
-
-
-
-
-	CString csvlist;
-	CListBox csv_list;
-
-	CString current_filename;
-
-	CListBox move_list;
-	CString select_move;
-
-	CListBox motion_file_list;
-	CString motion_file_select;
-	CString motion_name;
-
-	int saisei_kaishi;
 
 };
