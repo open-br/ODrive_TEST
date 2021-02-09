@@ -1,3 +1,7 @@
+
+// ODriveArduino のベースのソースコードは、odriveroboticsが著作権を保有しています。
+// https://github.com/odriverobotics/ODrive/tree/devel/Arduino/ODriveArduino
+
 //#include "Arduino.h"
 #include <stdio.h>						// 標準ヘッダー
 #include <windows.h>					// Windows API用ヘッダー
